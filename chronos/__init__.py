@@ -25,9 +25,11 @@
 import httplib2
 import json
 
+
 class ChronosClient(object):
     _user = None
     _password = None
+
     def __init__(self, hostname, proto="http", username=None, password=None):
         self.baseurl = "%s://%s" % (proto, hostname)
         if username and password:
@@ -35,27 +37,28 @@ class ChronosClient(object):
             self._password = password
 
     def list(self):
+        """List all jobs on Chronos."""
         return self._call("/scheduler/jobs", "GET")
 
     def delete_job(self, name):
+        """Delete a job by name"""
         path = "/scheduler/job/%s" % name
         return self._call(path, "DELETE")
 
     def delete_tasks(self, name):
+        """Terminate all tasks for a running/stuck job"""
         path = "/scheduler/task/kill/%s" % name
         return self._call(path, "DELETE")
 
     def run(self, name):
+        """Run a job by name"""
         path = "/scheduler/job/%s" % name
         return self._call(path, "PUT")
 
     def add(self, job_def, update=False):
+        """Schedule a new job"""
         path = "/scheduler/iso8601"
-        for k in ChronosJob.fields:
-            if k not in job_def:
-                raise Exception("Job missing required field %s" % k)
-            if "schedule" not in job_def and "parents" not in job_def:
-                raise Exception("Job must have a schedule or a parent")
+        self._check_fields(job_def)
         if update:
             method = "PUT"
         else:
@@ -63,6 +66,7 @@ class ChronosClient(object):
         return self._call(path, method, json.dumps(job_def))
 
     def update(self, job_def):
+        """Update an existing job by name"""
         return self.add(job_def, update=True)
 
     def _call(self, url, method="GET", body=None, headers={}):
@@ -73,7 +77,6 @@ class ChronosClient(object):
         print "Fetch: %s %s" % (method, url)
         if body:
             print "Body: %s" % body
-        print hdrs
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
         if self._user and self._password:
             conn.add_credentials(self._user, self._password)
@@ -97,6 +100,17 @@ class ChronosClient(object):
 
         return payload
 
+    def _check_fields(self, job):
+        for k in ChronosJob.fields:
+            if k not in job:
+                raise Exception("missing required field %s" % k)
+        for k in ChronosJob.one_of:
+            if k in job:
+                return True
+            else:
+                raise Exception("Job must include one of %s" % ChronosJob.one_of)
+
+
 class ChronosJob(object):
     fields = [
         "async",
@@ -106,6 +120,8 @@ class ChronosJob(object):
         "owner",
         "disabled"
     ]
+    one_of = ["schedule", "parents"]
+
 
 def connect(hostname, proto="http", username=None, password=None):
     return ChronosClient(hostname, proto="http", username=None, password=None)
