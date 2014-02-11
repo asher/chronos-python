@@ -11,7 +11,7 @@ Simple python api for the chronos job scheduler
 
 ```
 import chronos
-c = chronos.connect("chronos.mesos.server.com")
+c = chronos.connect("chronos.mesos.server.com:8080")
 
 # list jobs
 jobs = c.list()
