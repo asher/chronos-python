@@ -26,13 +26,13 @@ try:
     c.add(job) # fails if job of the same name already exists
 except:
     c.update(job)
-```
 
 # delete jobs
 c.delete("job123")
 
 # kill all tasks for a running/stuck job
 c.delete_tasks("job123")
+```
 
 
 ###Included Scripts
