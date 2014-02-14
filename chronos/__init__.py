@@ -40,7 +40,7 @@ class ChronosClient(object):
         """List all jobs on Chronos."""
         return self._call("/scheduler/jobs", "GET")
 
-    def delete_job(self, name):
+    def delete(self, name):
         """Delete a job by name"""
         path = "/scheduler/job/%s" % name
         return self._call(path, "DELETE")

@@ -6,7 +6,7 @@ def read(fname):
 
 setup(
     name = "chronos-python",
-    version = "0.1",
+    version = "0.2",
     author = "Asher Feldman",
     author_email = "asher@democument.com",
     description = ("A Python client libary for the Chronos Job Scheduler."),
@@ -14,6 +14,7 @@ setup(
     keywords = "chronos",
     url = "https://github.com/asher/chronos-python",
     packages=['chronos'],
+    scripts=['bin/chronos-sync-jobs.py'],
     long_description=read('README.md'),
     classifiers=[
         "Development Status :: 3 - Alpha",

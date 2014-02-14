@@ -23,8 +23,18 @@ c.run("job123")
 job = { 'async': False, 'command': 'echo 1', 'epsilon': 'PT15M', 'name': 'foo',
     'owner': 'me@foo.com', 'disabled': True, 'schedule': 'R/2014-01-01T00:00:00Z/PT60M'}
 try:
-    c.add(job)
+    c.add(job) # fails if job of the same name already exists
 except:
     c.update(job)
 ```
 
+# delete jobs
+c.delete("job123")
+
+# kill all tasks for a running/stuck job
+c.delete_tasks("job123")
+
+
+###Included Scripts
+* `chronos-sync-jobs.py` - Sync chronos jobs from a directory tree containing job.json files.
+`chronos-sync-jobs.py --hostname --hostname chronos.server.com:4400 --sync /path/to/job.json/files`
