@@ -13,10 +13,11 @@ Simple python api for the chronos job scheduler
 import chronos
 c = chronos.connect("chronos.mesos.server.com:8080")
 
-# list jobs
+# get list of scheduled jobs and their status as
+# [{ 'name': 'job1', ..}, { 'name': 'job2', ..}]
 jobs = c.list()
 
-# run job
+# run job by name
 c.run("job123")
 
 # add || update
@@ -27,7 +28,7 @@ try:
 except:
     c.update(job)
 
-# delete jobs
+# delete job by name
 c.delete("job123")
 
 # kill all tasks for a running/stuck job
