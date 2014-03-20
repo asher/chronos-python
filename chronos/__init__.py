@@ -24,17 +24,20 @@
 
 import httplib2
 import json
+import logging
 
 
 class ChronosClient(object):
     _user = None
     _password = None
 
-    def __init__(self, hostname, proto="http", username=None, password=None):
+    def __init__(self, hostname, proto="http", username=None, password=None, level='WARN'):
         self.baseurl = "%s://%s" % (proto, hostname)
         if username and password:
             self._user = username
             self._password = password
+        logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
+        self.logger = logging.getLogger(__name__)
 
     def list(self):
         """List all jobs on Chronos."""
@@ -74,25 +77,25 @@ class ChronosClient(object):
         if body:
             hdrs['Content-Type'] = "application/json"
         hdrs.update(headers)
-        print "Fetch: %s %s" % (method, url)
+        self.logger.debug("Fetch: %s %s" % (method, url))
         if body:
-            print "Body: %s" % body
+            self.logger.debug("Body: %s" % body)
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
         if self._user and self._password:
             conn.add_credentials(self._user, self._password)
         endpoint = "%s%s" % (self.baseurl, url)
-        print endpoint
+        self.logger.debug(endpoint)
         return self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
 
     def _check(self, resp, content):
         status = resp.status
-        print "status: %d" % status
+        self.logger.debug("status: %d" % status)
         payload = None
         if content:
             try:
                 payload = json.loads(content)
             except ValueError:
-                print "Response not valid json: %s" % content
+                self.logger.error("Response not valid json: %s" % content)
                 payload = content
 
         if payload is None and status != 204:
