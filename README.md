@@ -40,6 +40,6 @@ c.delete_tasks("job123")
 * `chronos-sync-jobs.py` - Sync chronos jobs from a directory tree containing job.json files.
 `chronos-sync-jobs.py --hostname chronos.server.com:4400 --sync /path/to/job.json/files`
 
-* `chronos-nagios.py` - Nagios/Icinga style monitor of jobs`
-`chronos-nagios.py --hostname chronos.server.com:4400 --crit 3 --prefix etl. --prefix data.` - only look at jobs prefixed with etl. or data.
-`chronos-nagios.py --hostname chronos.server.com:4400 --crit 3 --exclude etl.` - look at all jobs except those starting with etl.
+* `chronos-nagios.py` - Nagios/Icinga style monitor of jobs
+`chronos-nagios.py --hostname chronos.server.com:4400 --crit 3 --prefix etl. --prefix data.`
+`chronos-nagios.py --hostname chronos.server.com:4400 --crit 3 --exclude etl.`
