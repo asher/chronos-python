@@ -62,6 +62,8 @@ class ChronosClient(object):
         """Schedule a new job"""
         path = "/scheduler/iso8601"
         self._check_fields(job_def)
+        if "parents" in job_def:
+            path = "/scheduler/dependency"
         if update:
             method = "PUT"
         else:
