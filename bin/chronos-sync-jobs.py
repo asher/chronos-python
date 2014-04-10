@@ -46,7 +46,7 @@ def find_json_files(path):
         for file in files:
             if re.search(r"json$", file):
                 job_files.append(root + '/' + file)
-    return job_files
+    return sorted(job_files)
 
 
 def check_update(jobs, job):

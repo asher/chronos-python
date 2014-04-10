@@ -110,8 +110,7 @@ class ChronosClient(object):
         for k in ChronosJob.one_of:
             if k in job:
                 return True
-            else:
-                raise Exception("Job must include one of %s" % ChronosJob.one_of)
+        raise Exception("Job must include one of %s" % ChronosJob.one_of)
 
 
 class ChronosJob(object):
