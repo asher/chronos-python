@@ -84,6 +84,7 @@ def main():
 
     if args.sync:
         jobs = {}
+        retry = {'update': [], 'add': []}
         for job in cjobs:
             jobs[job["name"]] = job
 
@@ -100,14 +101,42 @@ def main():
                     if check_update(jobs, job):
                         print "Updating job %s from file %s" % (job['name'], file)
                         if not args.n:
-                            c.update(job)
+                            try:
+                                c.update(job)
+                            except:
+                                retry['update'].append(job)
                     else:
                         print "Job %s defined in %s is up-to-date on Chronos" \
-                              % (job['name'], file)
+                            % (job['name'], file)
                 else:
                     print "Adding job %s from file %s" % (job['name'], file)
                     if not args.n:
-                        c.add(job)
+                        try:
+                            c.add(job)
+                        except:
+                            retry['add'].append(job)
+
+        attempt = 0
+        while (len(retry['update']) > 0 or len(retry['add']) > 0) and attempt < 10:
+            attempt += 1
+            if len(retry['update']) > 0:
+                job = retry['update'].pop(0)
+                try:
+                    print "Retry %d for job %s" % (attempt, job['name'])
+                    c.update(job)
+                except:
+                    retry['update'].append(job)
+
+            if len(retry['add']) > 0:
+                job = retry['add'].pop(0)
+                try:
+                    print "Retry %d for job %s" % (attempt, job['name'])
+                    c.add(job)
+                except:
+                    retry['add'].append(job)
+
+        if len(retry['update']) > 0 or len(retry['add']) > 0:
+            print "Failed Jobs: %s" % sorted((retry['update'] + retry['add']))
 
 if __name__ == "__main__":
     main()
