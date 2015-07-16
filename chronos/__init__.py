@@ -128,4 +128,4 @@ class ChronosJob(object):
 
 
 def connect(hostname, proto="http", username=None, password=None):
-    return ChronosClient(hostname, proto="http", username=None, password=None)
+    return ChronosClient(hostname, proto="http", username=username, password=password)
