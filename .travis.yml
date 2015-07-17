@@ -1,0 +1,9 @@
+language: python
+python: 2.7
+sudo: true
+install:
+  - pip install tox
+script:
+  - ./itests/install-chronos.sh
+  - ./itests/start-chronos.sh
+  - make itests

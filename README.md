@@ -1,6 +1,8 @@
 chronos-python
 ==============
 
+[![Build Status](https://travis-ci.org/asher/chronos-python.svg?branch=master)](https://travis-ci.org/asher/chronos-python)
+
 Simple python api for the chronos job scheduler
 
 ###Installation
