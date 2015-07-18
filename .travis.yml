@@ -6,4 +6,4 @@ install:
 script:
   - ./itests/install-chronos.sh
   - ./itests/start-chronos.sh
-  - make itests
+  - make test && make itests
