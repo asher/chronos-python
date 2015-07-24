@@ -8,4 +8,4 @@ RUN /root/install-chronos.sh
 
 EXPOSE 4400 
 ADD ./start-chronos.sh /root/start-chronos.sh
-CMD /etc/init.d/zookeeper start && /root/start-chronos.sh
+CMD /etc/init.d/zookeeper start && /root/start-chronos.sh && sleep infinity
