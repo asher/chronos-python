@@ -1,0 +1,5 @@
+---
+chronos:
+  build: .
+  ports:
+    - 4400

@@ -1,5 +1,11 @@
 import time
 
+from itest_utils import wait_for_chronos
+
+
+def before_all(context):
+    wait_for_chronos()
+
 
 def after_scenario(context, scenario):
     """If a chronos client object exists in our context, delete any jobs before the next scenario."""
