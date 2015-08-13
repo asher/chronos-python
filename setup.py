@@ -4,7 +4,7 @@ from setuptools import setup
 
 setup(
     name = "chronos-python",
-    version = "0.32",
+    version = "0.33.0",
     author = "Asher Feldman",
     author_email = "asher@democument.com",
     description = ("A Python client libary for the Chronos Job Scheduler."),
