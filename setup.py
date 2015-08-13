@@ -18,5 +18,8 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "License :: OSI Approved :: MIT License",
     ],
+    install_requires = [
+        'httplib2 >= 0.9'
+    ],
     url='https://github.com/asher/chronos-python',
 )
