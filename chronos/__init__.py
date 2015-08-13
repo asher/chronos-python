@@ -27,12 +27,21 @@ import json
 import logging
 
 
+class ChronosException(Exception):
+    pass
+
+
+class ChronosInvalidJobException(Exception):
+    pass
+
+
 class ChronosClient(object):
     _user = None
     _password = None
 
-    def __init__(self, hostname, proto="http", username=None, password=None, level='WARN'):
-        self.baseurl = "%s://%s" % (proto, hostname)
+    def __init__(self, servers, proto="http", username=None, password=None, level='WARN'):
+        server_list = servers if isinstance(servers, list) else [servers]
+        self.servers = ["%s://%s" % (proto, server) for server in server_list]
         if username and password:
             self._user = username
             self._password = password
@@ -85,9 +94,21 @@ class ChronosClient(object):
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
         if self._user and self._password:
             conn.add_credentials(self._user, self._password)
-        endpoint = "%s%s" % (self.baseurl, url)
-        self.logger.debug(endpoint)
-        return self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
+
+        response = None
+        servers = list(self.servers)
+        while servers:
+            server = servers.pop(0)
+            endpoint = "%s%s" % (server, url)
+            self.logger.debug(endpoint)
+            try:
+                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
+                self.logger.info('Got response from %s', endpoint)
+                return response
+            except Exception as e:
+                self.logger.error('Error while calling %s: %s', endpoint, e.message)
+
+        raise ChronosException('No remaining Chronos servers to try')
 
     def _check(self, resp, content):
         status = resp.status
@@ -112,7 +133,7 @@ class ChronosClient(object):
         for k in ChronosJob.one_of:
             if k in job:
                 return True
-        raise Exception("Job must include one of %s" % ChronosJob.one_of)
+        raise ChronosInvalidJobException("Job must include one of %s" % ChronosJob.one_of)
 
 
 class ChronosJob(object):
@@ -127,5 +148,5 @@ class ChronosJob(object):
     one_of = ["schedule", "parents"]
 
 
-def connect(hostname, proto="http", username=None, password=None):
-    return ChronosClient(hostname, proto="http", username=username, password=password)
+def connect(servers, proto="http", username=None, password=None):
+    return ChronosClient(servers, proto=proto, username=username, password=password)
