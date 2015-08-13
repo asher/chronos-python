@@ -35,3 +35,14 @@ def test_check_returns_raw_response_when_not_json():
     fake_content = 'UNAUTHORIZED'
     actual = client._check(fake_response, fake_content)
     assert actual == fake_content
+
+
+def test_uses_server_list():
+    client = chronos.ChronosClient(["host1", "host2", "host3"], proto="http")
+    good_request = (mock.Mock(status=204), '')
+    bad_request = (mock.Mock(status=500), '')
+
+    conn_mock = mock.Mock(request=mock.Mock(side_effect=[bad_request, good_request, bad_request]))
+    with mock.patch('httplib2.Http', return_value=conn_mock):
+        client._call('/fake_url')
+        assert conn_mock.request.call_count == 2
