@@ -1,5 +1,7 @@
 import json
 import mock
+import pytest
+import httplib2
 
 import chronos
 
@@ -46,3 +48,28 @@ def test_uses_server_list():
     with mock.patch('httplib2.Http', return_value=conn_mock):
         client._call('/fake_url')
         assert conn_mock.request.call_count == 2
+
+
+def test_api_error_throws_exception():
+    client = chronos.ChronosClient(servers="localhost")
+    mock_response = mock.Mock()
+    mock_response.status = 500
+    mock_request = mock.Mock(return_value=(mock_response, None))
+    with mock.patch.object(httplib2.Http, 'request', mock_request):
+        with pytest.raises(chronos.ChronosAPIError):
+            client.list()
+
+
+def test_check_missing_fields():
+    client = chronos.ChronosClient(servers="localhost")
+    for field in chronos.ChronosJob.fields:
+        without_field = {x: 'foo' for x in filter(lambda y: y != field, chronos.ChronosJob.fields)}
+        with pytest.raises(chronos.MissingFieldError):
+            client._check_fields(without_field)
+
+
+def test_check_one_of():
+    client = chronos.ChronosClient(servers="localhost")
+    job = {field: 'foo' for field in chronos.ChronosJob.fields}
+    with pytest.raises(chronos.MissingFieldError):
+        client._check_fields(job)

@@ -27,11 +27,11 @@ import json
 import logging
 
 
-class ChronosException(Exception):
+class ChronosAPIError(Exception):
     pass
 
 
-class ChronosInvalidJobException(Exception):
+class MissingFieldError(Exception):
     pass
 
 
@@ -108,7 +108,7 @@ class ChronosClient(object):
             except Exception as e:
                 self.logger.error('Error while calling %s: %s', endpoint, e.message)
 
-        raise ChronosException('No remaining Chronos servers to try')
+        raise ChronosAPIError('No remaining Chronos servers to try')
 
     def _check(self, resp, content):
         status = resp.status
@@ -122,18 +122,18 @@ class ChronosClient(object):
                 payload = content
 
         if payload is None and status != 204:
-            raise Exception("HTTP Error %d occurred." % status)
+            raise ChronosAPIError("Request to Chronos API failed: status: %d, response: %s" % (status, content))
 
         return payload
 
     def _check_fields(self, job):
         for k in ChronosJob.fields:
             if k not in job:
-                raise Exception("missing required field %s" % k)
+                raise MissingFieldError("missing required field %s" % k)
         for k in ChronosJob.one_of:
             if k in job:
                 return True
-        raise ChronosInvalidJobException("Job must include one of %s" % ChronosJob.one_of)
+        raise MissingFieldError("Job must include one of %s" % ChronosJob.one_of)
 
 
 class ChronosJob(object):
