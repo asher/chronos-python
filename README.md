@@ -14,6 +14,8 @@ Simple python api for the chronos job scheduler
 ```
 import chronos
 c = chronos.connect("chronos.mesos.server.com:8080")
+# or specify multilple servers that will be tried in order
+c = chronos.connect(["chronos1.mesos.server.com:8080", "chronos2.mesos.server.com:8080"])
 
 # get list of scheduled jobs and their status as
 # [{ 'name': 'job1', ..}, { 'name': 'job2', ..}]
