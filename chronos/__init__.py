@@ -25,6 +25,7 @@
 import httplib2
 import json
 import logging
+from urllib import quote
 
 
 class ChronosAPIError(Exception):
@@ -99,7 +100,7 @@ class ChronosClient(object):
         servers = list(self.servers)
         while servers:
             server = servers.pop(0)
-            endpoint = "%s%s" % (server, url)
+            endpoint = "%s%s" % (server, quote(url))
             self.logger.debug(endpoint)
             try:
                 response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))

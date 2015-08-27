@@ -1,12 +1,10 @@
 import os
 from setuptools import setup
 
-def read(fname):
-    return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 setup(
     name = "chronos-python",
-    version = "0.32",
+    version = "0.33.0",
     author = "Asher Feldman",
     author_email = "asher@democument.com",
     description = ("A Python client libary for the Chronos Job Scheduler."),
@@ -20,4 +18,8 @@ setup(
         "Topic :: Software Development :: Libraries :: Python Modules",
         "License :: OSI Approved :: MIT License",
     ],
+    install_requires = [
+        'httplib2 >= 0.9'
+    ],
+    url='https://github.com/asher/chronos-python',
 )
