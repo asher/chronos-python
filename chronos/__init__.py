@@ -25,6 +25,7 @@
 import httplib2
 import json
 import logging
+from urllib import quote
 
 
 class ChronosClient(object):
@@ -85,7 +86,7 @@ class ChronosClient(object):
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
         if self._user and self._password:
             conn.add_credentials(self._user, self._password)
-        endpoint = "%s%s" % (self.baseurl, url)
+        endpoint = "%s%s" % (self.baseurl, quote(url))
         self.logger.debug(endpoint)
         return self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
 
