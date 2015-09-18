@@ -84,6 +84,28 @@ class ChronosClient(object):
         """Update an existing job by name"""
         return self.add(job_def, update=True)
 
+    def job_stat(self, name):
+        """ List stats for a job """
+        return self._call('/scheduler/job/stat/%s' % name, "GET")
+
+    def scheduler_stat_99th(self):
+        return self._call('/scheduler/stats/99thPercentile', 'GET')
+
+    def scheduler_stat_98th(self):
+        return self._call('/scheduler/stats/98thPercentile', 'GET')
+
+    def scheduler_stat_95th(self):
+        return self._call('/scheduler/stats/95thPercentile', 'GET')
+
+    def scheduler_stat_75th(self):
+        return self._call('/scheduler/stats/75thPercentile', 'GET')
+
+    def scheduler_stat_median(self):
+        return self._call('/scheduler/stats/median', 'GET')
+
+    def scheduler_stat_mean(self):
+        return self._call('/scheduler/stats/mean', 'GET')
+
     def _call(self, url, method="GET", body=None, headers={}):
         hdrs = {}
         if body:
