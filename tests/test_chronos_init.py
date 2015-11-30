@@ -68,8 +68,37 @@ def test_check_missing_fields():
             client._check_fields(without_field)
 
 
-def test_check_one_of():
+def test_check_one_of_missing():
     client = chronos.ChronosClient(servers="localhost")
     job = {field: 'foo' for field in chronos.ChronosJob.fields}
     with pytest.raises(chronos.MissingFieldError):
+        client._check_fields(job)
+
+
+def test_check_one_of_all():
+    client = chronos.ChronosClient(servers="localhost")
+    job = {field: 'foo' for field in (chronos.ChronosJob.fields + chronos.ChronosJob.one_of)}
+    with pytest.raises(chronos.OneOfViolationError):
+        client._check_fields(job)
+
+
+@mock.patch('chronos.ChronosJob')
+def test_check_one_of_ok(patch_chronos_job):
+    patch_chronos_job.one_of = ['foo', 'bar']
+    patch_chronos_job.fields = ['field1', 'field2']
+    job = {field: 'foo' for field in chronos.ChronosJob.fields}
+    client = chronos.ChronosClient(servers="localhost")
+    for one_of_field in ['foo', 'bar']:
+        complete = job.copy()
+        complete.update({one_of_field: 'val'})
+        assert client._check_fields(complete)
+
+
+@mock.patch('chronos.ChronosJob')
+def test_check_one_of_more_than_one(patch_chronos_job):
+    patch_chronos_job.one_of = ['foo', 'bar', 'baz']
+    patch_chronos_job.fields = ['field1', 'field2']
+    job = {field: 'foo' for field in (chronos.ChronosJob.fields + ['foo', 'bar'])}
+    client = chronos.ChronosClient(servers="localhost")
+    with pytest.raises(chronos.OneOfViolationError):
         client._check_fields(job)

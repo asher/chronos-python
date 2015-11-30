@@ -36,6 +36,10 @@ class MissingFieldError(Exception):
     pass
 
 
+class OneOfViolationError(Exception):
+    pass
+
+
 class ChronosClient(object):
     _user = None
     _password = None
@@ -153,10 +157,13 @@ class ChronosClient(object):
         for k in ChronosJob.fields:
             if k not in job:
                 raise MissingFieldError("missing required field %s" % k)
-        for k in ChronosJob.one_of:
-            if k in job:
-                return True
-        raise MissingFieldError("Job must include one of %s" % ChronosJob.one_of)
+
+        if any(field in job for field in ChronosJob.one_of):
+            if len([field for field in ChronosJob.one_of if field in job]) > 1:
+                raise OneOfViolationError("Job must only include 1 of %s" % ChronosJob.one_of)
+        else:
+            raise MissingFieldError("Job must include one of %s" % ChronosJob.one_of)
+        return True
 
 
 class ChronosJob(object):
