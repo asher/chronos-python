@@ -1,5 +1,6 @@
 env:
  - CHRONOSVERSION: 2.3.4
+ - CHRONOSVERSION: 2.4.0
 
 language: python
 python: 2.7
