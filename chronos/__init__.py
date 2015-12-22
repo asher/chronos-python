@@ -32,6 +32,10 @@ class ChronosAPIError(Exception):
     pass
 
 
+class UnauthorizedError(Exception):
+    pass
+
+
 class MissingFieldError(Exception):
     pass
 
@@ -132,7 +136,7 @@ class ChronosClient(object):
                 response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
                 self.logger.info('Got response from %s', endpoint)
                 return response
-            except Exception as e:
+            except ChronosAPIError as e:
                 self.logger.error('Error while calling %s: %s', endpoint, e.message)
 
         raise ChronosAPIError('No remaining Chronos servers to try')
@@ -141,6 +145,10 @@ class ChronosClient(object):
         status = resp.status
         self.logger.debug("status: %d" % status)
         payload = None
+
+        if status == 401:
+            raise UnauthorizedError()
+
         if content:
             try:
                 payload = json.loads(content)
