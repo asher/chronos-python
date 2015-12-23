@@ -33,8 +33,8 @@ def test_check_accepts_json():
 def test_check_returns_raw_response_when_not_json():
     client = chronos.ChronosClient("localhost")
     fake_response = mock.Mock()
-    fake_response.status = 401
-    fake_content = 'UNAUTHORIZED'
+    fake_response.status = 400
+    fake_content = 'foo bar baz'
     actual = client._check(fake_response, fake_content)
     assert actual == fake_content
 
@@ -80,6 +80,14 @@ def test_check_one_of_all():
     job = {field: 'foo' for field in (chronos.ChronosJob.fields + chronos.ChronosJob.one_of)}
     with pytest.raises(chronos.OneOfViolationError):
         client._check_fields(job)
+
+
+def test_check_unauthorized_raises():
+    client = chronos.ChronosClient(servers="localhost")
+    mock_response = mock.Mock()
+    mock_response.status = 401
+    with pytest.raises(chronos.UnauthorizedError):
+        client._check(mock_response, '{"foo": "bar"}')
 
 
 @mock.patch('chronos.ChronosJob')
