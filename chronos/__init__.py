@@ -156,13 +156,10 @@ class ChronosClient(object):
 
         if content:
             try:
-                payload = json.loads(content)
-            except (TypeError, ValueError):
-                try:
-                    payload = json.loads(content.decode('utf-8'))
-                except ValueError:
-                    self.logger.error("Response not valid in json: %s" % content)
-                    payload = content
+                payload = json.loads(content.decode('utf-8'))
+            except ValueError:
+                self.logger.error("Response not valid json: %s" % content)
+                payload = content
 
         if payload is None and status != 204:
             raise ChronosAPIError("Request to Chronos API failed: status: %d, response: %s" % (status, content))
