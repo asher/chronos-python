@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.org/asher/chronos-python.svg?branch=master)](https://travis-ci.org/asher/chronos-python)
 
-This is a Python client Libaray for the [Chronos](https://mesos.github.io/chronos/docs/api.html) HTTP [Rest API](https://mesos.github.io/chronos/docs/api.html)
+This is a Python client library for the [Chronos](https://mesos.github.io/chronos/docs/api.html) HTTP [Rest API](https://mesos.github.io/chronos/docs/api.html)
 
 ## Installation
 
