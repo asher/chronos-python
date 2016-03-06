@@ -1,8 +1,9 @@
 import errno
-from functools import wraps
 import os
 import signal
 import time
+from functools import wraps
+from urlparse import urlparse
 
 import requests
 from compose.cli import command
@@ -63,7 +64,15 @@ def get_chronos_connection_string():
         return 'localhost:4400'
     else:
         service_port = get_service_internal_port('chronos')
-        return get_compose_service('chronos').get_container().get_local_port(service_port)
+        connection_string = get_compose_service('chronos').get_container().get_local_port(service_port)
+
+        # Check for non-local docker host
+        if 'DOCKER_HOST' in os.environ.keys() and os.environ.get('DOCKER_HOST').startswith("tcp"):
+            host = urlparse(os.environ.get('DOCKER_HOST')).hostname
+            port = connection_string.split(":")[1]
+            return "%s:%s" % (host, port)
+
+        return connection_string
 
 
 def get_service_internal_port(service_name):

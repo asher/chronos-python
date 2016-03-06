@@ -30,7 +30,7 @@ def create_trivial_chronos_job(context, job_name):
         'name': job_name,
         'owner': '',
         'disabled': False,
-        'schedule': 'R/2014-01-01T00:00:00Z/PT60M',
+        'schedule': 'R0/2014-01-01T00:00:00Z/PT60M',
     }
     context.client.add(job)
 
@@ -52,6 +52,11 @@ def not_see_job_with_spaces(context, job_name):
     jobs = context.client.list()
     job_names = [job['name'] for job in jobs]
     assert 'test chronos job with spaces' not in job_names
+
+@then(u'we should be able to see {num_jobs} in the job graph')
+def not_see_job_with_spaces(context, num_jobs):
+    jobs = context.client.scheduler_graph().split("\n")
+    assert 'node,myjob,fresh,idle' in jobs and 'node,myotherjob,fresh,idle' in jobs
 
 
 @then(u'we should be able to see timings for the job named "{job_name}" when we look at scheduler stats')

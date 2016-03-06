@@ -96,6 +96,9 @@ class ChronosClient(object):
         """ List stats for a job """
         return self._call('/scheduler/job/stat/%s' % name, "GET")
 
+    def scheduler_graph(self):
+        return self._call('/scheduler/graph/csv', 'GET', expect_json=False)
+
     def scheduler_stat_99th(self):
         return self._call('/scheduler/stats/99thPercentile', 'GET')
 
@@ -114,7 +117,7 @@ class ChronosClient(object):
     def scheduler_stat_mean(self):
         return self._call('/scheduler/stats/mean', 'GET')
 
-    def _call(self, url, method="GET", body=None, headers={}):
+    def _call(self, url, method="GET", body=None, headers={}, expect_json=True):
         hdrs = {}
         if body:
             hdrs['Content-Type'] = "application/json"
@@ -133,7 +136,8 @@ class ChronosClient(object):
             endpoint = "%s%s" % (server, quote(url))
             self.logger.debug(endpoint)
             try:
-                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
+                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs),
+                                       expect_json=expect_json)
                 self.logger.info('Got response from %s', endpoint)
                 return response
             except ChronosAPIError as e:
@@ -141,7 +145,7 @@ class ChronosClient(object):
 
         raise ChronosAPIError('No remaining Chronos servers to try')
 
-    def _check(self, resp, content):
+    def _check(self, resp, content, expect_json=True):
         status = resp.status
         self.logger.debug("status: %d" % status)
         payload = None
@@ -153,7 +157,8 @@ class ChronosClient(object):
             try:
                 payload = json.loads(content)
             except ValueError:
-                self.logger.error("Response not valid json: %s" % content)
+                if expect_json:
+                    self.logger.error("Response not valid json: %s" % content)
                 payload = content
 
         if payload is None and status != 204:
