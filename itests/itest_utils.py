@@ -71,8 +71,8 @@ def get_chronos_connection_string():
             host = urlparse(os.environ.get('DOCKER_HOST')).hostname
             port = connection_string.split(":")[1]
             return "%s:%s" % (host, port)
-
-        return connection_string
+        else:
+            return connection_string
 
 
 def get_service_internal_port(service_name):
