@@ -97,7 +97,7 @@ class ChronosClient(object):
         return self._call('/scheduler/job/stat/%s' % name, "GET")
 
     def scheduler_graph(self):
-        return self._call('/scheduler/graph/csv', 'GET', expect_json=False)
+        return self._call('/scheduler/graph/csv', 'GET')
 
     def scheduler_stat_99th(self):
         return self._call('/scheduler/stats/99thPercentile', 'GET')
@@ -117,7 +117,7 @@ class ChronosClient(object):
     def scheduler_stat_mean(self):
         return self._call('/scheduler/stats/mean', 'GET')
 
-    def _call(self, url, method="GET", body=None, headers={}, expect_json=True):
+    def _call(self, url, method="GET", body=None, headers={}):
         hdrs = {}
         if body:
             hdrs['Content-Type'] = "application/json"
@@ -136,8 +136,7 @@ class ChronosClient(object):
             endpoint = "%s%s" % (server, quote(url))
             self.logger.debug(endpoint)
             try:
-                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs),
-                                       expect_json=expect_json)
+                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
                 self.logger.info('Got response from %s', endpoint)
                 return response
             except ChronosAPIError as e:
@@ -145,7 +144,7 @@ class ChronosClient(object):
 
         raise ChronosAPIError('No remaining Chronos servers to try')
 
-    def _check(self, resp, content, expect_json=True):
+    def _check(self, resp, content):
         status = resp.status
         self.logger.debug("status: %d" % status)
         payload = None
@@ -157,7 +156,7 @@ class ChronosClient(object):
             try:
                 payload = json.loads(content)
             except ValueError:
-                if expect_json:
+                if resp['content-type'] == "application/json":
                     self.logger.error("Response not valid json: %s" % content)
                 payload = content
 

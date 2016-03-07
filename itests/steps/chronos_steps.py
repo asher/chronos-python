@@ -1,8 +1,9 @@
-import sys
+import csv
 import logging
-import chronos
+import sys
 from behave import given, when, then
 
+import chronos
 from itest_utils import get_chronos_connection_string
 
 sys.path.append('../')
@@ -53,10 +54,11 @@ def not_see_job_with_spaces(context, job_name):
     job_names = [job['name'] for job in jobs]
     assert 'test chronos job with spaces' not in job_names
 
-@then(u'we should be able to see {num_jobs} in the job graph')
-def not_see_job_with_spaces(context, num_jobs):
-    jobs = context.client.scheduler_graph().split("\n")
-    assert 'node,myjob,fresh,idle' in jobs and 'node,myotherjob,fresh,idle' in jobs
+@then(u'we should be able to see {num_jobs:d} jobs in the job graph')
+def see_job_in_graph(context, num_jobs):
+    jobs = csv.reader(context.client.scheduler_graph().splitlines())
+    actual = sum(1 for row in jobs)
+    assert actual == num_jobs
 
 
 @then(u'we should be able to see timings for the job named "{job_name}" when we look at scheduler stats')
