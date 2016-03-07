@@ -25,7 +25,12 @@
 import httplib2
 import json
 import logging
-from urllib import quote
+
+# Python 3 changed the submodule for quote
+try:
+    from urllib import quote
+except ImportError:
+    from urllib.parse import quote
 
 
 class ChronosAPIError(Exception):
@@ -151,7 +156,7 @@ class ChronosClient(object):
 
         if content:
             try:
-                payload = json.loads(content)
+                payload = json.loads(content.decode('utf-8'))
             except ValueError:
                 self.logger.error("Response not valid json: %s" % content)
                 payload = content

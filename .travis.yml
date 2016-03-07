@@ -1,9 +1,10 @@
 env:
- - CHRONOSVERSION: 2.3.4
  - CHRONOSVERSION: 2.4.0
 
 language: python
-python: 2.7
+python:
+  - 2.7
+  - 3.5
 sudo: true
 install:
   - pip install tox

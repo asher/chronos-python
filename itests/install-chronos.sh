@@ -3,7 +3,7 @@ set -e
 
 # Default version of chronos to test against if not set by the user
 [[ -f /root/chronos-version ]] && source /root/chronos-version
-CHRONOSVERSION="${CHRONOSVERSION:-2.3.4}"
+CHRONOSVERSION="${CHRONOSVERSION:-2.4.0}"
 
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv E56151BF
 DISTRO=$(lsb_release -is | tr '[:upper:]' '[:lower:]')
