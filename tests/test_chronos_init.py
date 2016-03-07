@@ -32,7 +32,7 @@ def test_check_accepts_json():
 
 def test_check_returns_raw_response_when_not_json():
     client = chronos.ChronosClient("localhost")
-    fake_response = mock.Mock()
+    fake_response = mock.Mock(__getitem__=mock.Mock(return_value="not-json"))
     fake_response.status = 400
     fake_content = 'foo bar baz'
     actual = client._check(fake_response, fake_content)
