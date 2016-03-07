@@ -101,6 +101,9 @@ class ChronosClient(object):
         """ List stats for a job """
         return self._call('/scheduler/job/stat/%s' % name, "GET")
 
+    def scheduler_graph(self):
+        return self._call('/scheduler/graph/csv', 'GET')
+
     def scheduler_stat_99th(self):
         return self._call('/scheduler/stats/99thPercentile', 'GET')
 
@@ -158,7 +161,8 @@ class ChronosClient(object):
             try:
                 payload = json.loads(content.decode('utf-8'))
             except ValueError:
-                self.logger.error("Response not valid json: %s" % content)
+                if resp['content-type'] == "application/json":
+                    self.logger.error("Response not valid json: %s" % content)
                 payload = content
 
         if payload is None and status != 204:
