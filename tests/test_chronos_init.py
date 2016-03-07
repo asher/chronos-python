@@ -39,6 +39,26 @@ def test_check_returns_raw_response_when_not_json():
     assert actual == fake_content
 
 
+def test_check_does_not_log_error_when_content_type_is_not_json():
+    with mock.patch('logging.getLogger', return_value=mock.Mock(error=mock.Mock())) as mock_log:
+        client = chronos.ChronosClient("localhost")
+        fake_response = mock.Mock(__getitem__=mock.Mock(return_value="not-json"))
+        fake_response.status = 400
+        fake_content = 'foo bar baz'
+        client._check(fake_response, fake_content)
+        assert mock_log().error.call_count == 0
+
+
+def test_check_logs_error_when_invalid_json():
+    with mock.patch('logging.getLogger', return_value=mock.Mock(error=mock.Mock())) as mock_log:
+        client = chronos.ChronosClient("localhost")
+        fake_response = mock.Mock(__getitem__=mock.Mock(return_value="application/json"))
+        fake_response.status = 400
+        fake_content = 'foo bar baz'
+        client._check(fake_response, fake_content)
+        mock_log().error.assert_called_once_with("Response not valid json: %s" % fake_content)
+
+
 def test_uses_server_list():
     client = chronos.ChronosClient(["host1", "host2", "host3"], proto="http")
     good_request = (mock.Mock(status=204), '')
