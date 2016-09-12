@@ -23,6 +23,7 @@
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 
 import httplib2
+import socket
 import json
 import logging
 
@@ -139,10 +140,13 @@ class ChronosClient(object):
         while servers:
             server = servers.pop(0)
             endpoint = "%s%s" % (server, quote(url))
-            self.logger.debug(endpoint)
             try:
-                response = self._check(*conn.request(endpoint, method, body=body, headers=hdrs))
-                self.logger.info('Got response from %s', endpoint)
+                resp, content = conn.request(endpoint, method, body=body, headers=hdrs)
+            except (socket.error, httplib2.ServerNotFoundError) as e:
+                self.logger.error('Error while calling %s: %s. Retrying', endpoint, e.message)
+                continue
+            try:
+                response = self._check(resp, content)
                 return response
             except ChronosAPIError as e:
                 self.logger.error('Error while calling %s: %s', endpoint, e.message)

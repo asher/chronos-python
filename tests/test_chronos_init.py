@@ -130,3 +130,20 @@ def test_check_one_of_more_than_one(patch_chronos_job):
     client = chronos.ChronosClient(servers="localhost")
     with pytest.raises(chronos.OneOfViolationError):
         client._check_fields(job)
+
+
+@mock.patch('chronos.httplib2.Http')
+def test_call_retries_on_http_error(mock_http):
+    mock_call = mock.Mock(side_effect=[
+        httplib2.socket.error,
+        httplib2.ServerNotFoundError,
+        (mock.Mock(status=200), '{"foo": "bar"}')
+    ])
+    mock_http.return_value = mock.Mock(
+            request=mock_call
+    )
+    client = chronos.ChronosClient(servers=['1.2.3.4', '1.2.3.5', '1.2.3.6'])
+    client._call("/foo")
+    mock_call.assert_any_call('http://1.2.3.4/foo', 'GET', body=None, headers={})
+    mock_call.assert_any_call('http://1.2.3.5/foo', 'GET', body=None, headers={})
+    mock_call.assert_any_call('http://1.2.3.6/foo', 'GET', body=None, headers={})
