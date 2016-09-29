@@ -53,8 +53,7 @@ def wait_for_chronos():
 
 def get_compose_service(service_name):
     """Returns a compose object for the service"""
-    cmd = command.Command()
-    project = cmd.get_project(cmd.get_config_path())
+    project = command.get_project('.')
     return project.get_service(service_name)
 
 

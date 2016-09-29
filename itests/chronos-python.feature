@@ -25,3 +25,7 @@ Feature: chronos-python can interact with chronos
      When we create a trivial chronos job named "myjob"
       And we create a trivial chronos job named "myotherjob"
      Then we should be able to see 2 jobs in the job graph
+
+  Scenario: Getting metrics
+    Given a working chronos instance
+     Then we should be able to see metrics

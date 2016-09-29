@@ -97,3 +97,10 @@ def check_median(context):
 def check_mode(context):
     modes = context.client.scheduler_stat_median()
     assert modes == [{'jobNameLabel': 'myjob', 'time': 0.0}]
+
+@then(u'we should be able to see metrics')
+def check_metrics(context):
+    metrics = context.client.metrics()
+    assert isinstance(metrics, dict)
+    assert metrics.has_key("version")
+    assert metrics.has_key("gauges")
