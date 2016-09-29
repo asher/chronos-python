@@ -6,7 +6,7 @@ from functools import wraps
 from urlparse import urlparse
 
 import requests
-from compose.cli import main,command
+from compose.cli import command
 
 
 class TimeoutError(Exception):

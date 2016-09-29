@@ -123,6 +123,9 @@ class ChronosClient(object):
     def scheduler_stat_mean(self):
         return self._call('/scheduler/stats/mean', 'GET')
 
+    def metrics(self):
+        return self._call('/metrics', 'GET')
+
     def _call(self, url, method="GET", body=None, headers={}):
         hdrs = {}
         if body:
