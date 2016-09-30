@@ -12,3 +12,12 @@ script:
   - ./itests/install-chronos.sh
   - ./itests/start-chronos.sh
   - make test && make itests
+
+deploy:
+  - provider: pypi
+    user: yelplabs
+    password:
+      secure: "Im92teoC11SVnrDjrMGe/KMbXkzwDRh7kpaP8EfByQfqSR7T2ON2BbZngpQp0nc7qn6QKo2HNcAA0M2nnMDCIm+b0XMvgYxpPbFdzzDRI7jiNlgbZmdMtGU3scR88dGmO+Yct2Xau5zo3CPuVgvXE0Qr9wXRV5NDwHu7w3eciKXwAaPeX9pt76x9nlLpf8S0le5OCRObQbxzTve2pWC5BhoLFucP2Azx1auv9WKbL4qN7i0iG/VGQCS0mpQE+sr6AJCsIMTfFvRTEvCgFXyeCjwemHm/Rt0I3HIVkOnDj7Okl4bBSoVxZ0Y5kYFHrFNZ9ld69gNVV0cQRNGFVYCU5hMw+y5Xmut6Erf28BfPUuzsKgim6LQoyAe7FRXx3MKQoNiQtsQp9r3atMaWKrvTwwsXva+nshWjnY0UlQYAr4wzxK7q26gA5UPlIp39DYIfnYe/JWFxCEd+HYUqylM6npg8drPPBqAKDNUnYE1aKawXEsCOZDsQ2T965t10BAnMR3vrh/zIS9H8MAeDg2GzJOzQvDIvhXNQ2ybgZDefUmyEDoYMA4xQMcSQMtJ+XboEmvsXJdpwMJcCfZ7NpQUbL4MLSxYeedppDhKCOdhlGd8tN3WYK2L/ENVmTaioOb4C9q1c+hGs5sNbnQXzucBIwLSTMo4ZJUbwb9TCT9+brkw="
+    on:
+      tags: true
+      repo: asher/chronos-python
