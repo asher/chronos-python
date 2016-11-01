@@ -187,6 +187,13 @@ class ChronosClient(object):
                 raise OneOfViolationError("Job must only include 1 of %s" % ChronosJob.one_of)
         else:
             raise MissingFieldError("Job must include one of %s" % ChronosJob.one_of)
+
+        if "container" in job:
+            container = job["container"]
+            for k in ChronosJob.container_fields:
+                if k not in container:
+                    raise MissingFieldError("missing required container field %s" % k)
+
         return True
 
 
@@ -200,6 +207,10 @@ class ChronosJob(object):
         "disabled"
     ]
     one_of = ["schedule", "parents"]
+    container_fields = [
+        "type",
+        "image"
+    ]
 
 
 def connect(servers, proto="http", username=None, password=None):
