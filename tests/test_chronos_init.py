@@ -80,12 +80,31 @@ def test_api_error_throws_exception():
             client.list()
 
 
-def test_check_missing_fields():
+def test_check_missing_top_level_fields():
     client = chronos.ChronosClient(servers="localhost")
     for field in chronos.ChronosJob.fields:
         without_field = {x: 'foo' for x in filter(lambda y: y != field, chronos.ChronosJob.fields)}
         with pytest.raises(chronos.MissingFieldError):
             client._check_fields(without_field)
+
+
+def test_check_missing_container_fields():
+    client = chronos.ChronosClient(servers="localhost")
+    for field in chronos.ChronosJob.container_fields:
+        container_without_field = {x: 'foo' for x in filter(lambda y: y != field, chronos.ChronosJob.container_fields)}
+        job_def = {
+            "container": container_without_field,
+            "async": False,
+            "command": "while sleep 10; do date =u %T; done",
+            "epsilon": "PT15M",
+            "schedule": "R/2014-09-25T17:22:00Z/PT2M",
+            "name": "dockerjob",
+            "owner": "test",
+            "disabled": False
+        }
+        with pytest.raises(chronos.MissingFieldError) as excinfo:
+            client._check_fields(job_def)
+        assert field in str(excinfo.value)
 
 
 def test_check_one_of_missing():
