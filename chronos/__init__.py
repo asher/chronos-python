@@ -201,7 +201,6 @@ class ChronosJob(object):
     fields = [
         "async",
         "command",
-        "epsilon",
         "name",
         "owner",
         "disabled"
