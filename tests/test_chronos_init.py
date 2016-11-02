@@ -96,7 +96,6 @@ def test_check_missing_container_fields():
             "container": container_without_field,
             "async": False,
             "command": "while sleep 10; do date =u %T; done",
-            "epsilon": "PT15M",
             "schedule": "R/2014-09-25T17:22:00Z/PT2M",
             "name": "dockerjob",
             "owner": "test",
