@@ -26,6 +26,8 @@ import httplib2
 import socket
 import json
 import logging
+import re
+import warnings
 
 # Python 3 changed the submodule for quote
 try:
@@ -49,12 +51,13 @@ class MissingFieldError(Exception):
 class OneOfViolationError(Exception):
     pass
 
+SCHEDULER_VERSIONS = ('v1',)
 
 class ChronosClient(object):
     _user = None
     _password = None
 
-    def __init__(self, servers, proto="http", username=None, password=None, extra_headers=None, level='WARN'):
+    def __init__(self, servers, proto="http", username=None, password=None, extra_headers=None, level='WARN', scheduler_version=None):
         server_list = servers if isinstance(servers, list) else [servers]
         self.servers = ["%s://%s" % (proto, server) for server in server_list]
         self.extra_headers = extra_headers
@@ -63,6 +66,13 @@ class ChronosClient(object):
             self._password = password
         logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
         self.logger = logging.getLogger(__name__)
+        if scheduler_version is None:
+            warnings.warn("Chronos >=3.x requires scheduler_version set to 'v1', in the future the constructor will default to 'v1' as well", FutureWarning)
+            self._prefix = ""
+        else:
+            if scheduler_version not in SCHEDULER_VERSIONS:
+                raise ValueError('Wrong scheduler_version provided')
+            self._prefix = "/%s" % (scheduler_version,)
 
     def list(self):
         """List all jobs on Chronos."""
@@ -125,14 +135,19 @@ class ChronosClient(object):
         return self._call('/scheduler/stats/mean', 'GET')
 
     def metrics(self):
-        return self._call('/metrics', 'GET')
+        # for some reason, /metrics is not prefixed with the version
+        return self._call('/metrics', 'GET', prefix=False)
 
-    def _call(self, url, method="GET", body=None, headers={}):
+    def _call(self, url, method="GET", body=None, headers={}, prefix=True):
         hdrs = {}
         if body:
             hdrs['Content-Type'] = "application/json"
         hdrs.update(headers)
-        self.logger.debug("Fetch: %s %s" % (method, url))
+        if prefix:
+            _url = '%s%s' % (self._prefix, url, )
+        else:
+            _url = url
+        self.logger.debug("Fetch: %s %s" % (method, _url))
         if body:
             self.logger.debug("Body: %s" % body)
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
@@ -145,7 +160,7 @@ class ChronosClient(object):
         servers = list(self.servers)
         while servers:
             server = servers.pop(0)
-            endpoint = "%s%s" % (server, quote(url))
+            endpoint = "%s%s" % (server, quote(_url))
             try:
                 resp, content = conn.request(endpoint, method, body=body, headers=hdrs)
             except (socket.error, httplib2.ServerNotFoundError) as e:
@@ -185,6 +200,11 @@ class ChronosClient(object):
             if k not in job:
                 raise MissingFieldError("missing required field %s" % k)
 
+        # Chronos v3.x rejects job names with spaces in them
+        regex = re.compile(r'^[\w.-]+$')
+        # We're not sure if we're running chronos < 3.x at this point, so just throw a warning
+        if not regex.match(job["name"]):
+            warnings.warn('Chronos >= 3.x rejects job names with spaces in them, "%(name)s" might be rejected' % job)
         if any(field in job for field in ChronosJob.one_of):
             if len([field for field in ChronosJob.one_of if field in job]) > 1:
                 raise OneOfViolationError("Job must only include 1 of %s" % ChronosJob.one_of)
@@ -215,5 +235,5 @@ class ChronosJob(object):
     ]
 
 
-def connect(servers, proto="http", username=None, password=None, extra_headers=None):
-    return ChronosClient(servers, proto=proto, username=username, password=password, extra_headers=extra_headers)
+def connect(servers, proto="http", username=None, password=None, extra_headers=None, scheduler_version=None):
+    return ChronosClient(servers, proto=proto, username=username, password=password, extra_headers=extra_headers, scheduler_version=scheduler_version)
