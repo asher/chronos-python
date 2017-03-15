@@ -1,0 +1,7 @@
+-r requirements.txt
+docker-compose==1.8.1
+pep8==1.5.7
+behave
+flake8
+pytest
+mock
