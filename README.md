@@ -78,4 +78,4 @@ To run the tests:
 
 To run against a different version of Chronos:
 
-    CHRONOSVERSION=2.4.0 make itests
+    CHRONOSVERSION=3.0.2 make itests
