@@ -2,11 +2,9 @@ import csv
 import logging
 import sys
 from behave import given, when, then
+import time
 
 import chronos
-from itest_utils import get_chronos_connection_string
-
-sys.path.append('../')
 
 log = logging.getLogger('chronos')
 log.addHandler(logging.StreamHandler(sys.stdout))
@@ -18,22 +16,31 @@ def working_chronos(context):
     """Adds a working chronos client as context.client for the purposes of
     interacting with it in the test."""
     if not hasattr(context, 'client'):
-        chronos_connection_string = get_chronos_connection_string()
-        context.client = chronos.connect(chronos_connection_string)
+        chronos_servers = ['127.0.0.1:4400']
+        context.client = chronos.connect(chronos_servers)
 
 
 @when(u'we create a trivial chronos job named "{job_name}"')
 def create_trivial_chronos_job(context, job_name):
     job = {
-        'async': False,
         'command': 'echo 1',
-        'epsilon': 'PT1M',
         'name': job_name,
         'owner': '',
         'disabled': False,
         'schedule': 'R0/2014-01-01T00:00:00Z/PT60M',
     }
-    context.client.add(job)
+    try:
+        context.client.add(job)
+        # give it a bit of time to reflect the job in ZK
+        time.sleep(0.5)
+        context.created = True
+    except:
+        context.created = False
+
+
+@then(u'the job "{job_name}" failed to be created')
+def job_creation_failed(context, job_name):
+    assert context.created == False
 
 
 @then(u'we should be able to see the job named "{job_name}" when we list jobs')
@@ -43,9 +50,17 @@ def list_chronos_jobs_has_trivial_job(context, job_name):
     assert job_name in job_names
 
 
+@then(u'we should not see the job named "{job_name}" when we list jobs')
+def list_chronos_jobs_hasnt_trivial_job(context, job_name):
+    jobs = context.client.list()
+    job_names = [job['name'] for job in jobs]
+    assert job_name not in job_names
+
+
 @then(u'we should be able to delete the job named "{job_name}"')
 def delete_job_with_spaces(context, job_name):
     context.client.delete(job_name)
+    time.sleep(0.5)
 
 
 @then(u'we should not be able to see the job named "{job_name}" when we list jobs')

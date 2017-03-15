@@ -1,5 +1,4 @@
 import time
-
 from itest_utils import wait_for_chronos
 
 
@@ -16,4 +15,4 @@ def after_scenario(context, scenario):
                 break
             for job in jobs:
                 context.client.delete(job['name'])
-            time.sleep(0.5)
+            time.sleep(1.0)

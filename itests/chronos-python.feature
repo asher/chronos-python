@@ -8,9 +8,8 @@ Feature: chronos-python can interact with chronos
   Scenario: Handling spaces in job names
     Given a working chronos instance
      When we create a trivial chronos job named "job with spaces"
-     Then we should be able to see the job named "job with spaces" when we list jobs
-      And we should be able to delete the job named "job with spaces"
-      And we should not be able to see the job named "job with spaces" when we list jobs
+     Then the job "job with spaces" failed to be created
+     And  we should not see the job named "job with spaces" when we list jobs
 
   Scenario: Gathering job stats for job
     Given a working chronos instance
