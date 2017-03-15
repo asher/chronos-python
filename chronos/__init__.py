@@ -27,7 +27,6 @@ import socket
 import json
 import logging
 import re
-import warnings
 
 # Python 3 changed the submodule for quote
 try:
@@ -67,11 +66,10 @@ class ChronosClient(object):
         logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
         self.logger = logging.getLogger(__name__)
         if scheduler_version is None:
-            warnings.warn("Chronos >=3.x requires scheduler_version set to 'v1', in the future the constructor will default to 'v1' as well", FutureWarning)
-            self._prefix = ""
+            raise ChronosAPIError("Chronos >=3.x requires scheduler_version set")
         else:
             if scheduler_version not in SCHEDULER_VERSIONS:
-                raise ValueError('Wrong scheduler_version provided')
+                raise ChronosAPIError('Wrong scheduler_version provided')
             self._prefix = "/%s" % (scheduler_version,)
 
     def list(self):
@@ -202,9 +200,11 @@ class ChronosClient(object):
 
         # Chronos v3.x rejects job names with spaces in them
         regex = re.compile(r'^[\w.-]+$')
-        # We're not sure if we're running chronos < 3.x at this point, so just throw a warning
-        if not regex.match(job["name"]):
-            warnings.warn('Chronos >= 3.x rejects job names with spaces in them, "%(name)s" might be rejected' % job)
+        if "name" in job and not regex.match(job["name"]):
+            raise ChronosAPIError(
+                'Chronos >= 3.x only allows job names that match "[\w.-]+", '
+                '"%(name)s" is invalid' % job
+            )
         if any(field in job for field in ChronosJob.one_of):
             if len([field for field in ChronosJob.one_of if field in job]) > 1:
                 raise OneOfViolationError("Job must only include 1 of %s" % ChronosJob.one_of)
