@@ -5,10 +5,10 @@ language: python
 python:
   - 2.7
   - 3.5
-sudo: true
+sudo: required
+services:
+  - docker
 install:
   - pip install tox
 script:
-  - ./itests/install-chronos.sh
-  - ./itests/start-chronos.sh
   - make test && make itests
