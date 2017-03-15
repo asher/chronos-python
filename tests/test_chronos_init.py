@@ -94,7 +94,6 @@ def test_check_missing_container_fields():
         container_without_field = {x: 'foo' for x in filter(lambda y: y != field, chronos.ChronosJob.container_fields)}
         job_def = {
             "container": container_without_field,
-            "async": False,
             "command": "while sleep 10; do date =u %T; done",
             "schedule": "R/2014-09-25T17:22:00Z/PT2M",
             "name": "dockerjob",
@@ -162,6 +161,6 @@ def test_call_retries_on_http_error(mock_http):
     )
     client = chronos.ChronosClient(servers=['1.2.3.4', '1.2.3.5', '1.2.3.6'])
     client._call("/foo")
-    mock_call.assert_any_call('http://1.2.3.4/foo', 'GET', body=None, headers={})
-    mock_call.assert_any_call('http://1.2.3.5/foo', 'GET', body=None, headers={})
-    mock_call.assert_any_call('http://1.2.3.6/foo', 'GET', body=None, headers={})
+    mock_call.assert_any_call('http://1.2.3.4%s/foo' % client._prefix, 'GET', body=None, headers={})
+    mock_call.assert_any_call('http://1.2.3.5%s/foo' % client._prefix, 'GET', body=None, headers={})
+    mock_call.assert_any_call('http://1.2.3.6%s/foo' % client._prefix, 'GET', body=None, headers={})
