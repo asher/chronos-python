@@ -34,6 +34,8 @@ try:
 except ImportError:
     from urllib.parse import quote
 
+SCHEDULER_VERSIONS = ('v1',)
+
 
 class ChronosAPIError(Exception):
     pass
@@ -50,13 +52,16 @@ class MissingFieldError(Exception):
 class OneOfViolationError(Exception):
     pass
 
-SCHEDULER_VERSIONS = ('v1',)
 
 class ChronosClient(object):
     _user = None
     _password = None
 
-    def __init__(self, servers, proto="http", username=None, password=None, extra_headers=None, level='WARN', scheduler_version=None):
+    def __init__(
+        self, servers, proto="http", username=None,
+        password=None, extra_headers=None, level='WARN',
+        scheduler_version='v1'
+    ):
         server_list = servers if isinstance(servers, list) else [servers]
         self.servers = ["%s://%s" % (proto, server) for server in server_list]
         self.extra_headers = extra_headers
@@ -235,5 +240,8 @@ class ChronosJob(object):
     ]
 
 
-def connect(servers, proto="http", username=None, password=None, extra_headers=None, scheduler_version=None):
-    return ChronosClient(servers, proto=proto, username=username, password=password, extra_headers=extra_headers, scheduler_version=scheduler_version)
+def connect(servers, proto="http", username=None, password=None, extra_headers=None, scheduler_version='v1'):
+    return ChronosClient(
+        servers, proto=proto, username=username, password=password,
+        extra_headers=extra_headers, scheduler_version=scheduler_version
+    )
