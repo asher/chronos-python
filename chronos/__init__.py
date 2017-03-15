@@ -227,7 +227,6 @@ class ChronosClient(object):
 
 class ChronosJob(object):
     fields = [
-        "async",
         "command",
         "name",
         "owner",
