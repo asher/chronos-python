@@ -34,19 +34,27 @@ except ImportError:
     from urllib.parse import quote
 
 
-class ChronosAPIError(Exception):
+class ChronosError(Exception):
     pass
 
 
-class UnauthorizedError(Exception):
+class ChronosAPIError(ChronosError):
     pass
 
 
-class MissingFieldError(Exception):
+class UnauthorizedError(ChronosAPIError):
     pass
 
 
-class OneOfViolationError(Exception):
+class ChronosValidationError(ChronosError):
+    pass
+
+
+class MissingFieldError(ChronosValidationError):
+    pass
+
+
+class OneOfViolationError(ChronosValidationError):
     pass
 
 
