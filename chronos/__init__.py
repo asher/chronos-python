@@ -26,7 +26,7 @@ import httplib2
 import socket
 import json
 import logging
-import re
+import warnings
 
 # Python 3 changed the submodule for quote
 try:
@@ -71,11 +71,13 @@ class ChronosClient(object):
         logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
         self.logger = logging.getLogger(__name__)
         if scheduler_version is None:
-            raise ChronosAPIError("Chronos >=3.x requires scheduler_version set")
+            warnings.warn("Chronos >=3.x requires scheduler_version set", FutureWarning)
+            self._prefix = ''
         else:
             if scheduler_version not in SCHEDULER_VERSIONS:
                 raise ChronosAPIError('Wrong scheduler_version provided')
             self._prefix = "/%s" % (scheduler_version,)
+        self.scheduler_version = scheduler_version
 
     def list(self):
         """List all jobs on Chronos."""
@@ -199,17 +201,13 @@ class ChronosClient(object):
         return payload
 
     def _check_fields(self, job):
-        for k in ChronosJob.fields:
+        fields = ChronosJob.fields
+        if self.scheduler_version is None:
+            fields.extend(ChronosJob.legacy_fields)
+        for k in fields:
             if k not in job:
                 raise MissingFieldError("missing required field %s" % k)
 
-        # Chronos v3.x rejects job names with spaces in them
-        regex = re.compile(r'^[\w.-]+$')
-        if "name" in job and not regex.match(job["name"]):
-            raise ChronosAPIError(
-                'Chronos >= 3.x only allows job names that match "[\w.-]+", '
-                '"%(name)s" is invalid' % job
-            )
         if any(field in job for field in ChronosJob.one_of):
             if len([field for field in ChronosJob.one_of if field in job]) > 1:
                 raise OneOfViolationError("Job must only include 1 of %s" % ChronosJob.one_of)
@@ -231,6 +229,9 @@ class ChronosJob(object):
         "name",
         "owner",
         "disabled"
+    ]
+    legacy_fields = [
+        "async",
     ]
     one_of = ["schedule", "parents"]
     container_fields = [
