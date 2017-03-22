@@ -1,13 +1,22 @@
-env:
- - CHRONOSVERSION: 3.0.2
-
 language: python
-python:
-  - 2.7
-  - 3.5
-sudo: required
-services:
-  - docker
+matrix:
+  include:
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    python:
+      - 2.7
+      - 3.5
+    env: CHRONOSVERSION=3.0.2
+  - os: linux
+    sudo: required
+    services:
+      - docker
+    python:
+      - 2.7
+      - 3.5
+    env: CHRONOSVERSION=2.4.0
 before_install:
   - docker-compose -f itests/docker-compose.yml pull
 install:
