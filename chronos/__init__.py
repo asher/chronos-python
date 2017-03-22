@@ -104,10 +104,14 @@ class ChronosClient(object):
         self._check_fields(job_def)
         if "parents" in job_def:
             path = "/scheduler/dependency"
-        if update:
-            method = "PUT"
-        else:
-            method = "POST"
+        # Cool story: chronos >= 3.0 ditched PUT and only allows POST here,
+        # trying to maintain backwards compat with < 3.0
+        method = "POST"
+        if self.scheduler_version is None:
+            if update:
+                method = "PUT"
+            else:
+                method = "POST"
         return self._call(path, method, json.dumps(job_def))
 
     def update(self, job_def):
