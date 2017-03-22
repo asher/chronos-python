@@ -98,21 +98,21 @@ class ChronosClient(object):
         path = "/scheduler/job/%s" % name
         return self._call(path, "PUT")
 
-    def set(self, job_def):
-        """Add or update a job"""
+    def add(self, job_def, update=False):
+        """Schedule a new job"""
         path = "/scheduler/iso8601"
         self._check_fields(job_def)
         if "parents" in job_def:
             path = "/scheduler/dependency"
-        return self._call(path, "POST", json.dumps(job_def))
-
-    def add(self, job_def):
-        """Add a new job"""
-        return self.set(job_def)
+        if update:
+            method = "PUT"
+        else:
+            method = "POST"
+        return self._call(path, method, json.dumps(job_def))
 
     def update(self, job_def):
         """Update an existing job by name"""
-        return self.set(job_def)
+        return self.add(job_def, update=True)
 
     def job_stat(self, name):
         """ List stats for a job """
