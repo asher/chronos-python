@@ -156,7 +156,7 @@ class ChronosClient(object):
             _url = '%s%s' % (self._prefix, url, )
         else:
             _url = url
-        self.logger.debug("Fetch: %s %s" % (method, _url))
+        self.logger.debug("Calling: %s %s" % (method, _url))
         if body:
             self.logger.debug("Body: %s" % body)
         conn = httplib2.Http(disable_ssl_certificate_validation=True)
@@ -201,6 +201,16 @@ class ChronosClient(object):
 
         if payload is None and status != 204:
             raise ChronosAPIError("Request to Chronos API failed: status: %d, response: %s" % (status, content))
+
+        # if the status returned is not an OK status, raise an exception
+        if status > 299:
+            message = "API returned status %d" % (status,)
+            # newer chronos does return the full stack trace in a message field,
+            # grabbing the first 160 chars from it
+            if 'message' in payload:
+                self.logger.debug(payload['message'])
+                message = '%s (...)' % (payload['message'][:160],)
+            raise ChronosAPIError(message)
 
         return payload
 
