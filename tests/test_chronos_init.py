@@ -76,7 +76,7 @@ def test_check_does_not_log_error_when_content_type_is_not_json():
         fake_content = 'foo bar baz'
         try:
             client._check(fake_response, fake_content)
-        except chronos.ChronosAPIError as cap:
+        except chronos.ChronosAPIError:
             pass
         assert mock_log().error.call_count == 0
 
@@ -89,7 +89,7 @@ def test_check_logs_error_when_invalid_json():
         fake_content = 'foo bar baz'
         try:
             client._check(fake_response, fake_content)
-        except chronos.ChronosAPIError as cap:
+        except chronos.ChronosAPIError:
             pass
         mock_log().error.assert_called_once_with("Response not valid json: %s" % fake_content)
 
