@@ -3,15 +3,14 @@ import logging
 import sys
 from behave import given, when, then
 import time
-import os
 
 import chronos
 
 log = logging.getLogger('chronos')
 log.addHandler(logging.StreamHandler(sys.stdout))
 log.setLevel(logging.DEBUG)
-CHRONOSVERSION = os.getenv('CHRONOSVERSION', '3.0.2')
 LEGACY_VERSIONS = ('2.4.0',)
+DEFAULT_CHRONOS_VERSION = '3.0.2'
 
 
 @given('a working chronos instance')
@@ -20,7 +19,8 @@ def working_chronos(context):
     interacting with it in the test."""
     if not hasattr(context, 'client'):
         chronos_servers = ['127.0.0.1:4400']
-        if CHRONOSVERSION in LEGACY_VERSIONS:
+        chronos_version = context.config.userdata.get('chronos_version', DEFAULT_CHRONOS_VERSION)
+        if chronos_version in LEGACY_VERSIONS:
             scheduler_version = None
         else:
             scheduler_version = 'v1'
@@ -36,7 +36,8 @@ def create_trivial_chronos_job(context, job_name):
         'disabled': False,
         'schedule': 'R0/2014-01-01T00:00:00Z/PT60M',
     }
-    if CHRONOSVERSION in LEGACY_VERSIONS:
+    chronos_version = context.config.userdata.get('chronos_version', DEFAULT_CHRONOS_VERSION)
+    if chronos_version in LEGACY_VERSIONS:
         job['async'] = False
     try:
         context.client.add(job)
