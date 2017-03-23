@@ -30,13 +30,42 @@ def test_check_accepts_json():
     assert actual == json.loads(fake_content)
 
 
+def test_http_codes():
+    client = chronos.ChronosClient("localhost")
+    fake_response = mock.Mock()
+    # all status codes 2xx and 3xx are potentially valid
+    valid_codes = range(200, 399)
+    for status in valid_codes:
+        fake_response.status = status
+        fake_content = '{ "foo": "bar" }'
+        actual = client._check(fake_response, fake_content)
+        assert actual == json.loads(fake_content)
+    # we treat 401 in a special way, so we skip it (add 400 at the beginning)
+    invalid_codes = range(402, 550)
+    invalid_codes.insert(0, 400)
+    for status in invalid_codes:
+        fake_response.status = status
+        fake_content = '{ "foo": "bar" }'
+        with pytest.raises(chronos.ChronosAPIError):
+            actual = client._check(fake_response, fake_content)
+    # let's test 401 finally
+    fake_response.status = 401
+    fake_content = '{ "foo": "bar" }'
+    with pytest.raises(chronos.UnauthorizedError):
+        actual = client._check(fake_response, fake_content)
+
+
 def test_check_returns_raw_response_when_not_json():
     client = chronos.ChronosClient("localhost")
     fake_response = mock.Mock(__getitem__=mock.Mock(return_value="not-json"))
     fake_response.status = 400
     fake_content = 'foo bar baz'
-    actual = client._check(fake_response, fake_content)
-    assert actual == fake_content
+    try:
+        actual = client._check(fake_response, fake_content)
+    except chronos.ChronosAPIError as cap:
+        actual = cap.message
+    # on exceptions, the content is passed on the exception's message
+    assert actual == "API returned status 400, content: %s" % (fake_content, )
 
 
 def test_check_does_not_log_error_when_content_type_is_not_json():
@@ -45,7 +74,10 @@ def test_check_does_not_log_error_when_content_type_is_not_json():
         fake_response = mock.Mock(__getitem__=mock.Mock(return_value="not-json"))
         fake_response.status = 400
         fake_content = 'foo bar baz'
-        client._check(fake_response, fake_content)
+        try:
+            client._check(fake_response, fake_content)
+        except chronos.ChronosAPIError as cap:
+            pass
         assert mock_log().error.call_count == 0
 
 
@@ -55,7 +87,10 @@ def test_check_logs_error_when_invalid_json():
         fake_response = mock.Mock(__getitem__=mock.Mock(return_value="application/json"))
         fake_response.status = 400
         fake_content = 'foo bar baz'
-        client._check(fake_response, fake_content)
+        try:
+            client._check(fake_response, fake_content)
+        except chronos.ChronosAPIError as cap:
+            pass
         mock_log().error.assert_called_once_with("Response not valid json: %s" % fake_content)
 
 
