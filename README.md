@@ -70,7 +70,7 @@ Delete all the in flight tasks for a job:
 ## Testing
 
 ``chronos-python`` uses Travis to test against multiple versions of Chronos. You can run the tests locally on any machine
-with [Docker](https://www.docker.com/) on it.
+with [Docker](https://www.docker.com/) and [Docker compose](https://docs.docker.com/compose/) on it.
 
 To run the tests:
 
