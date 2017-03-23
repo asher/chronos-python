@@ -203,13 +203,13 @@ class ChronosClient(object):
             raise ChronosAPIError("Request to Chronos API failed: status: %d, response: %s" % (status, content))
 
         # if the status returned is not an OK status, raise an exception
-        if status > 299:
-            message = "API returned status %d" % (status,)
+        if status >= 400:
+            message = "API returned status %d, content: %s" % (status, payload,)
             # newer chronos does return the full stack trace in a message field,
             # grabbing the first 160 chars from it
             if 'message' in payload:
                 self.logger.debug(payload['message'])
-                message = '%s (...)' % (payload['message'][:160],)
+                message = '%s (...)' % (payload['message'][:120],)
             raise ChronosAPIError(message)
 
         return payload
