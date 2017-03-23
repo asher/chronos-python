@@ -2,4 +2,4 @@
 chronos:
   build: .
   ports:
-    - 4400
+    - "4400:4400"
