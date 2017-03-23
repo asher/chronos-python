@@ -3,20 +3,24 @@ matrix:
   include:
   - os: linux
     sudo: required
-    services:
-      - docker
-    python:
-      - 2.7
-      - 3.5
+    services: docker
+    python: 2.7
+    env: CHRONOSVERSION=2.4.0
+  - os: linux
+    sudo: required
+    services: docker
+    python: 3.5
+    env: CHRONOSVERSION=2.4.0
+  - os: linux
+    sudo: required
+    services: docker
+    python: 2.7
     env: CHRONOSVERSION=3.0.2
   - os: linux
     sudo: required
-    services:
-      - docker
-    python:
-      - 2.7
-      - 3.5
-    env: CHRONOSVERSION=2.4.0
+    services: docker
+    python: 3.5
+    env: CHRONOSVERSION=3.0.2
 before_install:
   - docker-compose -f itests/docker-compose.yml pull
 install:
