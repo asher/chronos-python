@@ -1,5 +1,42 @@
 ---
-chronos:
-  build: .
-  ports:
-    - "4400:4400"
+version: '2'
+services:
+  zookeeper:
+    build:
+      context: .
+      dockerfile: Dockerfile.zookeeper
+    ports:
+      - 2181
+
+  mesosmaster:
+    build:
+      context: .
+      dockerfile: Dockerfile.mesos
+    ports:
+      - 5050
+    command: 'mesos-master --zk=zk://zookeeper:2181/mesos-testcluster --registry=in_memory --quorum=1 --work_dir=/tmp/mesos'
+    depends_on:
+      - zookeeper
+
+  mesosslave:
+    build:
+      context: .
+      dockerfile: Dockerfile.mesos
+    ports:
+      - 5051
+    environment:
+      CLUSTER: testcluster
+    command: 'mesos-slave --master=zk://zookeeper:2181/mesos-testcluster --resources="cpus(*):10; mem(*):512; disk(*):100" --containerizers=docker --docker=/usr/bin/docker --work_dir=/tmp/mesos --no-docker_kill_orphans --log_dir=/var/log/mesos'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    depends_on:
+      - zookeeper
+
+  chronos:
+    build:
+      context: .
+      dockerfile: Dockerfile.chronos
+    ports:
+      - 8081:8081
+    depends_on:
+      - zookeeper

@@ -59,19 +59,20 @@ def get_compose_service(service_name):
 
 def get_chronos_connection_string():
     # only reliable way I can detect travis..
-    if '/travis/' in os.environ.get('PATH'):
-        return 'localhost:4400'
-    else:
-        service_port = get_service_internal_port('chronos')
-        connection_string = get_compose_service('chronos').get_container().get_local_port(service_port)
+    return 'localhost:8081'
+    # if '/travis/' in os.environ.get('PATH'):
+        # return 'localhost:4400'
+    # else:
+        # service_port = get_service_internal_port('chronos')
+        # connection_string = get_compose_service('chronos').get_container().get_local_port(service_port)
 
-        # Check for non-local docker host
-        if 'DOCKER_HOST' in os.environ.keys() and os.environ.get('DOCKER_HOST').startswith("tcp"):
-            host = urlparse(os.environ.get('DOCKER_HOST')).hostname
-            port = connection_string.split(":")[1]
-            return "%s:%s" % (host, port)
-        else:
-            return connection_string
+        # # Check for non-local docker host
+        # if 'DOCKER_HOST' in os.environ.keys() and os.environ.get('DOCKER_HOST').startswith("tcp"):
+            # host = urlparse(os.environ.get('DOCKER_HOST')).hostname
+            # port = connection_string.split(":")[1]
+            # return "%s:%s" % (host, port)
+        # else:
+            # return connection_string
 
 
 def get_service_internal_port(service_name):

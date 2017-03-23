@@ -1,0 +1,18 @@
+FROM ubuntu:trusty
+RUN apt-get update && apt-get -y install sudo lsb-release
+
+# Setup
+ADD ./chronos-version /root/chronos-version
+ADD ./install-chronos.sh /root/install-chronos.sh
+RUN /root/install-chronos.sh
+
+# Chronos will look in here for zk config, so we blow away the bogus defaults
+RUN rm -rf /etc/mesos/
+
+RUN echo 8081 > /etc/chronos/conf/http_port
+RUN echo 'zk://zookeeper:2181/mesos-testcluster' > /etc/chronos/conf/master
+RUN echo 'zookeeper:2181' > /etc/chronos/conf/zk_hosts
+RUN echo '/chronos' > /etc/chronos/conf/zk_path
+
+CMD rsyslogd ; sleep 1; (/usr/bin/chronos &) ; tail -f /var/log/syslog
+EXPOSE 8081
