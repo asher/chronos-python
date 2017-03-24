@@ -21,10 +21,10 @@ def working_chronos(context):
         chronos_servers = ['127.0.0.1:4400']
         chronos_version = context.config.userdata.get('chronos_version', DEFAULT_CHRONOS_VERSION)
         if chronos_version in LEGACY_VERSIONS:
-            scheduler_version = None
+            scheduler_api_version = None
         else:
-            scheduler_version = 'v1'
-        context.client = chronos.connect(chronos_servers, scheduler_version=scheduler_version)
+            scheduler_api_version = 'v1'
+        context.client = chronos.connect(chronos_servers, scheduler_api_version=scheduler_api_version)
 
 
 @when(u'we create a trivial chronos job named "{job_name}"')

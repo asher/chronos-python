@@ -34,7 +34,7 @@ try:
 except ImportError:
     from urllib.parse import quote
 
-SCHEDULER_VERSIONS = ('v1',)
+SCHEDULER_API_VERSIONS = ('v1',)
 
 
 class ChronosAPIError(Exception):
@@ -60,7 +60,7 @@ class ChronosClient(object):
     def __init__(
         self, servers, proto="http", username=None,
         password=None, extra_headers=None, level='WARN',
-        scheduler_version='v1'
+        scheduler_api_version='v1'
     ):
         server_list = servers if isinstance(servers, list) else [servers]
         self.servers = ["%s://%s" % (proto, server) for server in server_list]
@@ -70,14 +70,14 @@ class ChronosClient(object):
             self._password = password
         logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
         self.logger = logging.getLogger(__name__)
-        if scheduler_version is None:
-            warnings.warn("Chronos >=3.x requires scheduler_version set", FutureWarning)
+        if scheduler_api_version is None:
+            warnings.warn("Chronos >=3.x requires scheduler_api_version set", FutureWarning)
             self._prefix = ''
         else:
-            if scheduler_version not in SCHEDULER_VERSIONS:
-                raise ChronosAPIError('Wrong scheduler_version provided')
-            self._prefix = "/%s" % (scheduler_version,)
-        self.scheduler_version = scheduler_version
+            if scheduler_api_version not in SCHEDULER_API_VERSIONS:
+                raise ChronosAPIError('Wrong scheduler_api_version provided')
+            self._prefix = "/%s" % (scheduler_api_version,)
+        self.scheduler_api_version = scheduler_api_version
 
     def list(self):
         """List all jobs on Chronos."""
@@ -107,7 +107,7 @@ class ChronosClient(object):
         # Cool story: chronos >= 3.0 ditched PUT and only allows POST here,
         # trying to maintain backwards compat with < 3.0
         method = "POST"
-        if self.scheduler_version is None:
+        if self.scheduler_api_version is None:
             if update:
                 method = "PUT"
             else:
@@ -216,7 +216,7 @@ class ChronosClient(object):
 
     def _check_fields(self, job):
         fields = ChronosJob.fields
-        if self.scheduler_version is None:
+        if self.scheduler_api_version is None:
             fields.extend(ChronosJob.legacy_fields)
         for k in fields:
             if k not in job:
@@ -254,8 +254,8 @@ class ChronosJob(object):
     ]
 
 
-def connect(servers, proto="http", username=None, password=None, extra_headers=None, scheduler_version='v1'):
+def connect(servers, proto="http", username=None, password=None, extra_headers=None, scheduler_api_version='v1'):
     return ChronosClient(
         servers, proto=proto, username=username, password=password,
-        extra_headers=extra_headers, scheduler_version=scheduler_version
+        extra_headers=extra_headers, scheduler_api_version=scheduler_api_version
     )
