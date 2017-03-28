@@ -1,12 +1,11 @@
+#!/usr/bin/env python
 import errno
 import os
 import signal
 import time
 from functools import wraps
-from urlparse import urlparse
 
 import requests
-from compose.cli import command
 
 
 class TimeoutError(Exception):
@@ -34,12 +33,13 @@ def timeout(seconds=10, error_message=os.strerror(errno.ETIME)):
 
 @timeout(60)
 def wait_for_chronos():
-    """Blocks until marathon is up"""
-    chronos_service = get_chronos_connection_string()
+    """Blocks until chronos is up"""
+    # we start chronos always on port 4400
+    chronos_service = 'localhost:4400'
     while True:
         print 'Connecting to chronos on %s' % chronos_service
         try:
-            response = requests.get('http://%s/' % chronos_service, timeout=2)
+            response = requests.get('http://%s/ping' % chronos_service, timeout=2)
         except (
             requests.exceptions.ConnectionError,
             requests.exceptions.Timeout,
@@ -49,32 +49,3 @@ def wait_for_chronos():
         if response.status_code == 200:
             print "Chronos is up and running!"
             break
-
-
-def get_compose_service(service_name):
-    """Returns a compose object for the service"""
-    project = command.get_project('.')
-    return project.get_service(service_name)
-
-
-def get_chronos_connection_string():
-    # only reliable way I can detect travis..
-    if '/travis/' in os.environ.get('PATH'):
-        return 'localhost:4400'
-    else:
-        service_port = get_service_internal_port('chronos')
-        connection_string = get_compose_service('chronos').get_container().get_local_port(service_port)
-
-        # Check for non-local docker host
-        if 'DOCKER_HOST' in os.environ.keys() and os.environ.get('DOCKER_HOST').startswith("tcp"):
-            host = urlparse(os.environ.get('DOCKER_HOST')).hostname
-            port = connection_string.split(":")[1]
-            return "%s:%s" % (host, port)
-        else:
-            return connection_string
-
-
-def get_service_internal_port(service_name):
-    """Gets the exposed port for service_name from docker-compose.yml. If there are
-    multiple ports. It returns the first one."""
-    return get_compose_service(service_name).options['ports'][0]

@@ -2,15 +2,15 @@ import csv
 import logging
 import sys
 from behave import given, when, then
+import time
 
 import chronos
-from itest_utils import get_chronos_connection_string
-
-sys.path.append('../')
 
 log = logging.getLogger('chronos')
 log.addHandler(logging.StreamHandler(sys.stdout))
 log.setLevel(logging.DEBUG)
+LEGACY_VERSIONS = ('2.4.0',)
+DEFAULT_CHRONOS_VERSION = '3.0.2'
 
 
 @given('a working chronos instance')
@@ -18,22 +18,34 @@ def working_chronos(context):
     """Adds a working chronos client as context.client for the purposes of
     interacting with it in the test."""
     if not hasattr(context, 'client'):
-        chronos_connection_string = get_chronos_connection_string()
-        context.client = chronos.connect(chronos_connection_string)
+        chronos_servers = ['127.0.0.1:4400']
+        chronos_version = context.config.userdata.get('chronos_version', DEFAULT_CHRONOS_VERSION)
+        if chronos_version in LEGACY_VERSIONS:
+            scheduler_api_version = None
+        else:
+            scheduler_api_version = 'v1'
+        context.client = chronos.connect(chronos_servers, scheduler_api_version=scheduler_api_version)
 
 
 @when(u'we create a trivial chronos job named "{job_name}"')
 def create_trivial_chronos_job(context, job_name):
     job = {
-        'async': False,
         'command': 'echo 1',
-        'epsilon': 'PT1M',
         'name': job_name,
         'owner': '',
         'disabled': False,
         'schedule': 'R0/2014-01-01T00:00:00Z/PT60M',
     }
-    context.client.add(job)
+    chronos_version = context.config.userdata.get('chronos_version', DEFAULT_CHRONOS_VERSION)
+    if chronos_version in LEGACY_VERSIONS:
+        job['async'] = False
+    try:
+        context.client.add(job)
+        context.created = True
+    except:
+        context.created = False
+    # give it a bit of time to reflect the job in ZK
+    time.sleep(0.5)
 
 
 @then(u'we should be able to see the job named "{job_name}" when we list jobs')
@@ -43,9 +55,17 @@ def list_chronos_jobs_has_trivial_job(context, job_name):
     assert job_name in job_names
 
 
+@then(u'we should not see the job named "{job_name}" when we list jobs')
+def list_chronos_jobs_hasnt_trivial_job(context, job_name):
+    jobs = context.client.list()
+    job_names = [job['name'] for job in jobs]
+    assert job_name not in job_names
+
+
 @then(u'we should be able to delete the job named "{job_name}"')
 def delete_job_with_spaces(context, job_name):
     context.client.delete(job_name)
+    time.sleep(0.5)
 
 
 @then(u'we should not be able to see the job named "{job_name}" when we list jobs')
