@@ -6,16 +6,10 @@ This is a Python client library for the [Chronos](https://mesos.github.io/chrono
 
 ## Installation
 
-###  From PyPi
-
     pip install chronos-python
-
-### From Source
-
+    # or
     git clone git@github.com/asher/chronos-python
     python setup.py install
-    # or
-    pip install chronos-python
 
 ## Usage Examples
 

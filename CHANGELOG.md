@@ -1,5 +1,31 @@
 # Change Log
 
+## [1.0.0](https://github.com/asher/chronos-python/tree/1.0.0) (2017-04-22)
+[Full Changelog](https://github.com/asher/chronos-python/compare/v0.38.0...1.0.0)
+
+**Closed issues:**
+
+- Library doesn't recognize leader change [\#38](https://github.com/asher/chronos-python/issues/38)
+
+**Merged pull requests:**
+
+- Make a hierarchy of exceptions [\#36](https://github.com/asher/chronos-python/pull/36) ([theosotr](https://github.com/theosotr))
+- Initial support for chronos 3.x for \#33 [\#35](https://github.com/asher/chronos-python/pull/35) ([thekad](https://github.com/thekad))
+- Added travis deployment to pypi. Fixes \#27 [\#28](https://github.com/asher/chronos-python/pull/28) ([solarkennedy](https://github.com/solarkennedy))
+
+## [v0.38.0](https://github.com/asher/chronos-python/tree/v0.38.0) (2016-11-16)
+[Full Changelog](https://github.com/asher/chronos-python/compare/v0.37.0...v0.38.0)
+
+**Closed issues:**
+
+- Setup travis to push packages to pypi [\#27](https://github.com/asher/chronos-python/issues/27)
+
+**Merged pull requests:**
+
+- Generalize auth token [\#32](https://github.com/asher/chronos-python/pull/32) ([hylandm](https://github.com/hylandm))
+- epsilon is not required field of job definition [\#31](https://github.com/asher/chronos-python/pull/31) ([xkrt](https://github.com/xkrt))
+- container required fields validation [\#30](https://github.com/asher/chronos-python/pull/30) ([xkrt](https://github.com/xkrt))
+
 ## [v0.37.0](https://github.com/asher/chronos-python/tree/v0.37.0) (2016-09-29)
 [Full Changelog](https://github.com/asher/chronos-python/compare/v0.36.0...v0.37.0)
 
