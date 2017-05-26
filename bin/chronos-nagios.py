@@ -24,6 +24,7 @@
 import sys
 import re
 import argparse
+import logging
 import chronos
 
 
@@ -95,4 +96,5 @@ def main():
 
 
 if __name__ == "__main__":
+    logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level="WARN")
     main()
