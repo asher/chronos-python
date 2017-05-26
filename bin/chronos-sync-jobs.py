@@ -138,5 +138,6 @@ def main():
         if len(retry['update']) > 0 or len(retry['add']) > 0:
             print "Failed Jobs: %s" % sorted((retry['update'] + retry['add']))
 
+
 if __name__ == "__main__":
     main()
