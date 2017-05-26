@@ -68,7 +68,7 @@ class ChronosClient(object):
     def __init__(
         self, servers, proto="http", username=None,
         password=None, extra_headers=None, level='WARN',
-        scheduler_api_version='v1'
+        scheduler_api_version='v1', validate_ssl_certificates=True,
     ):
         server_list = servers if isinstance(servers, list) else [servers]
         self.servers = ["%s://%s" % (proto, server) for server in server_list]
@@ -86,6 +86,7 @@ class ChronosClient(object):
                 raise ChronosAPIError('Wrong scheduler_api_version provided')
             self._prefix = "/%s" % (scheduler_api_version,)
         self.scheduler_api_version = scheduler_api_version
+        self.disable_ssl_certificate_validation = not validate_ssl_certificates
 
     def list(self):
         """List all jobs on Chronos."""
@@ -167,7 +168,7 @@ class ChronosClient(object):
         self.logger.debug("Calling: %s %s" % (method, _url))
         if body:
             self.logger.debug("Body: %s" % body)
-        conn = httplib2.Http(disable_ssl_certificate_validation=True)
+        conn = httplib2.Http(disable_ssl_certificate_validation=self.disable_ssl_certificate_validation)
         if self._user and self._password:
             conn.add_credentials(self._user, self._password)
         if self.extra_headers:
