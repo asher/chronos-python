@@ -66,9 +66,9 @@ class ChronosClient(object):
     _password = None
 
     def __init__(
-        self, servers, proto="http", username=None,
-        password=None, extra_headers=None, level='WARN',
-        scheduler_api_version='v1', validate_ssl_certificates=True,
+        self, servers, proto="http", username=None, password=None,
+        extra_headers=None, scheduler_api_version='v1',
+        validate_ssl_certificates=True,
     ):
         server_list = servers if isinstance(servers, list) else [servers]
         self.servers = ["%s://%s" % (proto, server) for server in server_list]
@@ -76,7 +76,6 @@ class ChronosClient(object):
         if username and password:
             self._user = username
             self._password = password
-        logging.basicConfig(format='%(asctime)s %(levelname)-8s %(message)s', level=level)
         self.logger = logging.getLogger(__name__)
         if scheduler_api_version is None:
             warnings.warn("Chronos >=3.x requires scheduler_api_version set", FutureWarning)
