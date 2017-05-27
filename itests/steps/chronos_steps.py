@@ -74,6 +74,7 @@ def not_see_job_with_spaces(context, job_name):
     job_names = [job['name'] for job in jobs]
     assert 'test chronos job with spaces' not in job_names
 
+
 @then(u'we should be able to see {num_jobs:d} jobs in the job graph')
 def see_job_in_graph(context, num_jobs):
     jobs = csv.reader(context.client.scheduler_graph().splitlines())
@@ -84,14 +85,15 @@ def see_job_in_graph(context, num_jobs):
 @then(u'we should be able to see timings for the job named "{job_name}" when we look at scheduler stats')
 def check_job_has_timings(context, job_name):
     stats = context.client.job_stat(job_name)
-    assert stats == {'histogram': {
-        'median': 0.0,
-        '98thPercentile': 0.0,
-        '75thPercentile': 0.0,
-        '95thPercentile': 0.0,
-        '99thPercentile': 0.0,
-        'count': 0,
-        'mean': 0.0,
+    assert stats == {
+        'histogram': {
+            'median': 0.0,
+            '98thPercentile': 0.0,
+            '75thPercentile': 0.0,
+            '95thPercentile': 0.0,
+            '99thPercentile': 0.0,
+            'count': 0,
+            'mean': 0.0,
         },
         'taskStatHistory': []
     }
@@ -118,9 +120,10 @@ def check_mode(context):
     modes = context.client.scheduler_stat_median()
     assert modes == [{'jobNameLabel': 'myjob', 'time': 0.0}]
 
+
 @then(u'we should be able to see metrics')
 def check_metrics(context):
     metrics = context.client.metrics()
     assert isinstance(metrics, dict)
-    assert metrics.has_key("version")
-    assert metrics.has_key("gauges")
+    assert "version"in metrics
+    assert "gauges" in metrics
