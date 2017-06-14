@@ -44,3 +44,9 @@ Feature: chronos-python can interact with chronos
     Given a working chronos instance
      When we create a trivial chronos job named "myjob"
      Then we should be able to search for a job named "myjob"
+
+  @3.0.2
+  Scenario: Searching for a job by command "echo"
+    Given a working chronos instance
+     When we create a trivial chronos job named "myjob"
+     Then we should be able to search for a job with the command "echo"
