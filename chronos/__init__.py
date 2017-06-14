@@ -197,11 +197,9 @@ class ChronosClient(object):
             endpoint = "%s%s" % (server, quote(_url))
             if params:
                 if method == 'GET':
-                    endpoint += '?%s' % (urlencode(params))
-                else:
                     # usually you'd urlencode the params in the body, but we're
                     # already sending the body in a different argument...
-                    pass
+                    endpoint += '?%s' % (urlencode(params))
             try:
                 self.logger.debug("Fetch %s %s" % (endpoint, method, ))
                 resp, content = conn.request(endpoint, method, body=body, headers=hdrs)
