@@ -128,6 +128,7 @@ def check_metrics(context):
     assert "version"in metrics
     assert "gauges" in metrics
 
+
 @then(u'we should be able to search for a job named "{job_name}"')
 def search_job_by_name(context, job_name):
     jobs = context.client.search(name=job_name)
@@ -137,6 +138,7 @@ def search_job_by_name(context, job_name):
             result = True
             break
     assert result
+
 
 @then(u'we should be able to search for a job with the command "{command}"')
 def search_job_by_command(context, command):
