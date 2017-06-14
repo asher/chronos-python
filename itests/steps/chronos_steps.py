@@ -137,3 +137,10 @@ def search_job_by_name(context, job_name):
             result = True
             break
     assert result
+
+@then(u'we should be able to search for a job with the command "{command}"')
+def search_job_by_command(context, command):
+    jobs = context.client.search(command=command)
+    # there might be more than 1 job with the command FOO, so just ensure
+    # there are results
+    assert len(jobs) > 0
