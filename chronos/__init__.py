@@ -34,6 +34,12 @@ try:
 except ImportError:
     from urllib.parse import quote
 
+# also load urlencode
+try:
+    from urllib import urlencode
+except ImportError:
+    from urllib.parse import urlencode
+
 SCHEDULER_API_VERSIONS = ('v1',)
 
 
@@ -90,6 +96,17 @@ class ChronosClient(object):
     def list(self):
         """List all jobs on Chronos."""
         return self._call("/scheduler/jobs", "GET")
+
+    def search(self, name=None, command=None):
+        """Searches for jobs that match the criteria."""
+
+        params = {}
+        if name:
+            params['name'] = name
+        if command:
+            params['command'] = command
+
+        return self._call('/scheduler/jobs/search', 'GET', params=params)
 
     def delete(self, name):
         """Delete a job by name"""
@@ -155,7 +172,7 @@ class ChronosClient(object):
         # for some reason, /metrics is not prefixed with the version
         return self._call('/metrics', 'GET', prefix=False)
 
-    def _call(self, url, method="GET", body=None, headers={}, prefix=True):
+    def _call(self, url, method="GET", body=None, headers={}, prefix=True, params={}):
         hdrs = {}
         if body:
             hdrs['Content-Type'] = "application/json"
@@ -178,7 +195,12 @@ class ChronosClient(object):
         while servers:
             server = servers.pop(0)
             endpoint = "%s%s" % (server, quote(_url))
+            if params and method == 'GET':
+                # usually you'd urlencode the params in the body, but we're
+                # already sending the body in a different argument...
+                endpoint += '?%s' % (urlencode(params))
             try:
+                self.logger.debug("Fetch %s %s" % (endpoint, method, ))
                 resp, content = conn.request(endpoint, method, body=body, headers=hdrs)
             except (socket.error, httplib2.ServerNotFoundError) as e:
                 self.logger.error('Error while calling %s: %s. Retrying', endpoint, e.message)

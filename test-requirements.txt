@@ -5,3 +5,4 @@ behave
 flake8
 pytest
 mock
+tox

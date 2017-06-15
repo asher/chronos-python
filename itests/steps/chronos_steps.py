@@ -127,3 +127,22 @@ def check_metrics(context):
     assert isinstance(metrics, dict)
     assert "version"in metrics
     assert "gauges" in metrics
+
+
+@then(u'we should be able to search for a job named "{job_name}"')
+def search_job_by_name(context, job_name):
+    jobs = context.client.search(name=job_name)
+    result = False
+    for job in jobs:
+        if 'name' in job and job['name'] == job_name:
+            result = True
+            break
+    assert result
+
+
+@then(u'we should be able to search for a job with the command "{command}"')
+def search_job_by_command(context, command):
+    jobs = context.client.search(command=command)
+    # there might be more than 1 job with the command FOO, so just ensure
+    # there are results
+    assert len(jobs) > 0
