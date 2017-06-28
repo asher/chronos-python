@@ -20,6 +20,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 import os
 import sys
@@ -37,7 +38,7 @@ def read_job_file(path):
         if "name" in job:
             return job
     except:
-        print "Error: failed to decode %s" % path
+        print("Error: failed to decode %s" % path)
 
 
 def find_json_files(path):
@@ -80,7 +81,7 @@ def main():
 
     if args.list:
         # cjobs isn't json but this still gets us the pretty
-        print json.dumps(cjobs, sort_keys=True, indent=4)
+        print(json.dumps(cjobs, sort_keys=True, indent=4))
         sys.exit(0)
 
     if args.sync:
@@ -96,21 +97,23 @@ def main():
         for file in job_files:
             job = read_job_file(file)
             if not job:
-                print "Skipping %s" % file
+                print("Skipping %s" % file)
             else:
                 if job['name'] in jobs:
                     if check_update(jobs, job):
-                        print "Updating job %s from file %s" % (job['name'], file)
+                        print("Updating job %s from file %s" % (job['name'], file))
                         if not args.n:
                             try:
                                 c.update(job)
                             except:
                                 retry['update'].append(job)
                     else:
-                        print "Job %s defined in %s is up-to-date on Chronos" \
+                        print(
+                            "Job %s defined in %s is up-to-date on Chronos"
                             % (job['name'], file)
+                        )
                 else:
-                    print "Adding job %s from file %s" % (job['name'], file)
+                    print("Adding job %s from file %s" % (job['name'], file))
                     if not args.n:
                         try:
                             c.add(job)
@@ -123,7 +126,7 @@ def main():
             if len(retry['update']) > 0:
                 job = retry['update'].pop(0)
                 try:
-                    print "Retry %d for job %s" % (attempt, job['name'])
+                    print("Retry %d for job %s" % (attempt, job['name']))
                     c.update(job)
                 except:
                     retry['update'].append(job)
@@ -131,13 +134,13 @@ def main():
             if len(retry['add']) > 0:
                 job = retry['add'].pop(0)
                 try:
-                    print "Retry %d for job %s" % (attempt, job['name'])
+                    print("Retry %d for job %s" % (attempt, job['name']))
                     c.add(job)
                 except:
                     retry['add'].append(job)
 
         if len(retry['update']) > 0 or len(retry['add']) > 0:
-            print "Failed Jobs: %s" % sorted((retry['update'] + retry['add']))
+            print("Failed Jobs: %s" % sorted((retry['update'] + retry['add'])))
 
 
 if __name__ == "__main__":

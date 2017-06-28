@@ -20,6 +20,7 @@
 # COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
 # IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
 # CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+from __future__ import print_function
 
 import sys
 import re
@@ -57,7 +58,7 @@ def main():
     cjobs = c.list()
 
     if not isinstance(cjobs, list):
-        print "UNKNOWN: error querying chronos"
+        print("UNKNOWN: error querying chronos")
         sys.exit(3)
 
     for job in cjobs:
@@ -85,13 +86,13 @@ def main():
         umsg = ''
 
     if len(fails) == 0:
-        print "OK: %d jobs succeeded on last run %s" % (len(ok), umsg)
+        print("OK: %d jobs succeeded on last run %s" % (len(ok), umsg))
         sys.exit(0)
     elif len(fails) >= int(args.crit):
-        print "CRITICAL: %d failed jobs: %s %s" % (len(fails), str(fails).strip('[]'), umsg)
+        print("CRITICAL: %d failed jobs: %s %s" % (len(fails), str(fails).strip('[]'), umsg))
         sys.exit(2)
     elif len(fails) >= int(args.warn):
-        print "WARNING: %d failed jobs: %s %s" % (len(fails), str(fails).strip('[]'), umsg)
+        print("WARNING: %d failed jobs: %s %s" % (len(fails), str(fails).strip('[]'), umsg))
         sys.exit(1)
 
 
