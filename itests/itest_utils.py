@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+from __future__ import print_function
+
 import errno
 import os
 import signal
@@ -37,7 +39,7 @@ def wait_for_chronos():
     # we start chronos always on port 4400
     chronos_service = 'localhost:4400'
     while True:
-        print 'Connecting to chronos on %s' % chronos_service
+        print('Connecting to chronos on %s' % chronos_service)
         try:
             response = requests.get('http://%s/ping' % chronos_service, timeout=2)
         except (
@@ -47,5 +49,5 @@ def wait_for_chronos():
             time.sleep(2)
             continue
         if response.status_code == 200:
-            print "Chronos is up and running!"
+            print("Chronos is up and running!")
             break

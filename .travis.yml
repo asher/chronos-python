@@ -1,32 +1,20 @@
 language: python
-matrix:
-  include:
-  - os: linux
-    sudo: required
-    services: docker
-    python: 2.7
-    env: CHRONOSVERSION=2.4.0
-  - os: linux
-    sudo: required
-    services: docker
-    python: 3.5
-    env: CHRONOSVERSION=2.4.0
-  - os: linux
-    sudo: required
-    services: docker
-    python: 2.7
-    env: CHRONOSVERSION=3.0.2
-  - os: linux
-    sudo: required
-    services: docker
-    python: 3.5
-    env: CHRONOSVERSION=3.0.2
+cache: pip
+os: linux
+sudo: required
+env:
+  - TOXENV=py27
+  - TOXENV=py36
+  - TOXENV=itests CHRONOSVERSION=2.4.0
+  - TOXENV=itests CHRONOSVERSION=3.0.2
+  - TOXENV=itests-py3 CHRONOSVERSION=2.4.0
+  - TOXENV=itests-py3 CHRONOSVERSION=3.0.2
+services:
+  - docker
 before_install:
   - docker-compose -f itests/docker-compose.yml pull
-install:
-  - pip install tox
-script:
-  - make test && make itests
+install: pip install tox
+script: tox -i https://pypi.python.org/simple
 
 deploy:
   - provider: pypi
