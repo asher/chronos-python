@@ -203,13 +203,13 @@ class ChronosClient(object):
                 self.logger.debug("Fetch %s %s" % (endpoint, method, ))
                 resp, content = conn.request(endpoint, method, body=body, headers=hdrs)
             except (socket.error, httplib2.ServerNotFoundError) as e:
-                self.logger.error('Error while calling %s: %s. Retrying', endpoint, e.message)
+                self.logger.error('Error while calling %s: %s. Retrying', endpoint, str(e))
                 continue
             try:
                 response = self._check(resp, content)
                 return response
             except ChronosAPIError as e:
-                self.logger.error('Error while calling %s: %s', endpoint, e.message)
+                self.logger.error('Error while calling %s: %s', endpoint, str(e))
 
         raise ChronosAPIError('No remaining Chronos servers to try')
 
@@ -227,7 +227,7 @@ class ChronosClient(object):
             except ValueError:
                 if resp['content-type'] == "application/json":
                     self.logger.error("Response not valid json: %s" % content)
-                payload = content
+                payload = content.decode('utf-8')
 
         if payload is None and status != 204:
             raise ChronosAPIError("Request to Chronos API failed: status: %d, response: %s" % (status, content))
