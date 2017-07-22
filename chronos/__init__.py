@@ -26,7 +26,6 @@ import httplib2
 import socket
 import json
 import logging
-import warnings
 
 # Python 3 changed the submodule for quote
 try:
@@ -84,11 +83,10 @@ class ChronosClient(object):
             self._password = password
         self.logger = logging.getLogger(__name__)
         if scheduler_api_version is None:
-            warnings.warn("Chronos >=3.x requires scheduler_api_version set", FutureWarning)
             self._prefix = ''
         else:
             if scheduler_api_version not in SCHEDULER_API_VERSIONS:
-                raise ChronosAPIError('Wrong scheduler_api_version provided')
+                raise ChronosAPIError('scheduler_api_version not supported yet: %s' % scheduler_api_version)
             self._prefix = "/%s" % (scheduler_api_version,)
         self.scheduler_api_version = scheduler_api_version
         self.disable_ssl_certificate_validation = not validate_ssl_certificates
